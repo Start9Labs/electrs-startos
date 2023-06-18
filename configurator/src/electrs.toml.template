@@ -1,8 +1,0 @@
-auth = "{bitcoin_rpc_user:}:{bitcoin_rpc_pass}"
-daemon_rpc_addr = "{bitcoin_rpc_host}:{bitcoin_rpc_port}"
-daemon_p2p_addr = "{bitcoin_p2p_host}:{bitcoin_p2p_port}"
-network = "bitcoin"
-electrum_rpc_addr = "0.0.0.0:50001"
-log_filters = "{log_filters}"
-{index_batch_size}
-{index_lookup_limit}

@@ -1,49 +1,61 @@
-ELECTRS_SRC := $(shell find ./electrs/src) electrs/Cargo.toml electrs/Cargo.lock
-CONFIGURATOR_SRC := $(shell find ./configurator/src) configurator/Cargo.toml configurator/Cargo.lock
-PKG_VERSION := $(shell yq e ".version" manifest.yaml)
 PKG_ID := $(shell yq e ".id" manifest.yaml)
-TS_FILES := $(shell find . -name \*.ts )
+PKG_VERSION := $(shell yq e ".version" manifest.yaml)
+HEALTH_CHECK := $(shell find ./assets/utils/*.sh)
+TS_FILES := $(shell find ./ -name \*.ts)
 
+# delete the target of a rule if it has changed and its recipe exits with a nonzero exit status
 .DELETE_ON_ERROR:
 
 all: verify
 
 verify: $(PKG_ID).s9pk
-	embassy-sdk verify s9pk $(PKG_ID).s9pk
+	@embassy-sdk verify s9pk $(PKG_ID).s9pk
+	@echo " Done!"
+	@echo "   Filesize: $(shell du -h $(PKG_ID).s9pk) is ready"
 
-install: $(PKG_ID).s9pk
+install:
+ifeq (,$(wildcard ~/.embassy/config.yaml))
+	@echo; echo "You must define \"host: http://embassy-server-name.local\" in ~/.embassy/config.yaml config file first"; echo
+else
 	embassy-cli package install $(PKG_ID).s9pk
+endif
+
+arm:
+	@rm -f docker-images/x86_64.tar
+	ARCH=aarch64 $(MAKE)
+
+x86:
+	@rm -f docker-images/aarch64.tar
+	ARCH=x86_64 $(MAKE)
 
 clean:
-	rm -f image.tar
 	rm -rf docker-images
 	rm -f $(PKG_ID).s9pk
 	rm -f scripts/*.js
 
-# for rebuilding just the arm image. will include docker-images/x86_64.tar into the s9pk if it exists
-arm: docker-images/aarch64.tar scripts/embassy.js
-	embassy-sdk pack
-
-# for rebuilding just the x86 image. will include docker-images/aarch64.tar into the s9pk if it exists
-x86: docker-images/x86_64.tar scripts/embassy.js
-	embassy-sdk pack
-
-$(PKG_ID).s9pk: manifest.yaml instructions.md scripts/embassy.js electrs/LICENSE docker-images/aarch64.tar docker-images/x86_64.tar
-	embassy-sdk pack
-
-docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-synced.sh check-electrum.sh configurator/target/aarch64-unknown-linux-musl/release/configurator $(ELECTRS_SRC)
-	mkdir -p docker-images
-	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg ARCH=aarch64 --build-arg PLATFORM=arm64 --platform=linux/arm64 -o type=docker,dest=docker-images/aarch64.tar .
-
-docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh check-synced.sh check-electrum.sh configurator/target/x86_64-unknown-linux-musl/release/configurator $(ELECTRS_SRC)
-	mkdir -p docker-images
-	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg ARCH=x86_64 --build-arg PLATFORM=amd64 --platform=linux/amd64 -o type=docker,dest=docker-images/x86_64.tar .
-
-configurator/target/aarch64-unknown-linux-musl/release/configurator: $(CONFIGURATOR_SRC)
-	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/configurator:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo build --release
-
-configurator/target/x86_64-unknown-linux-musl/release/configurator: $(CONFIGURATOR_SRC)
-	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/configurator:/home/rust/src start9/rust-musl-cross:x86_64-musl cargo build --release
-
 scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
+
+docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh
+ifeq ($(ARCH),aarch64)
+else
+	mkdir -p docker-images
+	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/amd64 --build-arg PLATFORM=amd64 -o type=docker,dest=docker-images/x86_64.tar .
+endif
+
+docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh
+ifeq ($(ARCH),x86_64)
+else
+	mkdir -p docker-images
+	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/arm64 --build-arg PLATFORM=arm64 -o type=docker,dest=docker-images/aarch64.tar .
+endif
+
+$(PKG_ID).s9pk: manifest.yaml instructions.md LICENSE icon.svg scripts/embassy.js docker-images/aarch64.tar docker-images/x86_64.tar
+ifeq ($(ARCH),aarch64)
+	@echo "embassy-sdk: Preparing aarch64 package ..."
+else ifeq ($(ARCH),x86_64)
+	@echo "embassy-sdk: Preparing x86_64 package ..."
+else
+	@echo "embassy-sdk: Preparing Universal Package ..."
+endif
+	@embassy-sdk pack

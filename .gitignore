@@ -1,5 +1,6 @@
-electrs.s9pk
-image.tar
-scripts/embassy.js
-.vscode
+*.s9pk
+procedures/*.js
+node_modules/
+.DS_Store
+.vscode/
 docker-images
