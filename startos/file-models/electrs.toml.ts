@@ -1,4 +1,5 @@
 import { matches, FileHelper } from '@start9labs/start-sdk'
+import { configDefaults } from '../utils'
 const { object, literal, literals, natural } = matches
 
 const shape = object({
@@ -20,5 +21,5 @@ const shape = object({
 
 export const tomlFile = FileHelper.yaml(
   '/media/startos/volumes/main/data/electrs.toml',
-  shape,
+  shape.onMismatch(configDefaults),
 )

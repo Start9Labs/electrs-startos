@@ -4,11 +4,12 @@ import { setDependencies } from './dependencies'
 import { setInterfaces } from './interfaces'
 import { versions } from './versions'
 import { actions } from './actions'
-import { config } from './actions/config'
+import { tomlFile } from './file-models/electrs.toml'
+import { configDefaults } from './utils'
 
 // **** Install ****
 const install = sdk.setupInstall(async ({ effects }) => {
-  await sdk.action.requestOwn(effects, config, 'critical', {})
+  await tomlFile.write(configDefaults)
 })
 
 // **** Uninstall ****

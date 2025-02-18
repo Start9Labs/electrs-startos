@@ -15,7 +15,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   const primaryContainer = await sdk.SubContainer.of(
     effects,
-    { id: 'electrs' },
+    { imageId: 'electrs' },
     'primary',
   )
 
@@ -26,6 +26,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    */
 
   const syncCheck = sdk.HealthCheck.of(effects, {
+    id: 'sync',
     name: 'Sync Progress',
     fn: async () => {
       // @TODO write function

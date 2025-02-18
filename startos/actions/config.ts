@@ -1,5 +1,6 @@
 import { tomlFile } from '../file-models/electrs.toml'
 import { sdk } from '../sdk'
+import { logFilters } from '../utils'
 
 const { InputSpec, Value } = sdk
 
@@ -7,13 +8,7 @@ export const inputSpec = InputSpec.of({
   log_filters: Value.select({
     name: 'Log Level',
     description: 'Select the level of log verbosity. Less is usually better.',
-    values: {
-      ERROR: 'Error',
-      WARN: 'Warning',
-      INFO: 'Info',
-      DEBUG: 'Debug',
-      TRACE: 'Trace',
-    },
+    values: logFilters,
     default: 'INFO',
   }),
   index_batch_size: Value.number({
