@@ -37,22 +37,15 @@ export const migration: T.ExpectedExports.migration =
       "0.10.8.1": {
         up: compat.migrations.updateConfig(
           (config: any) => {
-            switch (config.type) {
-              case "internal-proxy":
-                config.type = "bitcoind-proxy";
-                break;
-              default:
-                config.type = "bitcoind";
-                break;
-            }
             config.bitcoind = {
-              type: config.type,
+              type: "bitcoind",
               username: config.user,
               password: config.password,
             };
 
             delete config.user;
             delete config.password;
+            delete config.type;
 
             return config;
           },
@@ -61,14 +54,7 @@ export const migration: T.ExpectedExports.migration =
         ),
         down: compat.migrations.updateConfig(
           (config: any) => {
-            switch (config.bitcoind.type) {
-              case "bitcoind-proxy":
-                config.type = "internal-proxy";
-                break;
-              default:
-                config.type = "internal";
-                break;
-            }
+            config.type = config.bitcoind.type;
             config.user = config.bitcoind.username;
             config.password = config.bitcoind.password;
 

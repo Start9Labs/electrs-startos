@@ -101,17 +101,6 @@ dependencies:
       auto-configure:
         type: script
     requires-runtime-config: true
-  btc-rpc-proxy:
-    version: '>=0.3.2.1 <0.5.0'
-    requirement:
-      type: 'opt-in'
-      how: Set "Bitcoin Core" to "Bitcoin Core"
-    description: Provides bitcoin rpc interface needed for info about fees, blockchain, mempool, network, and transactions. Can also use bitcoind for rpc interface, or an external node for both.
-    config:
-      check:
-        type: script
-      auto-configure:
-        type: script
 backup:
   create:
     type: script

@@ -19,7 +19,6 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
       "name": "Select Bitcoin Node",
       "variant-names": {
         "bitcoind": "Bitcoin Core",
-        "bitcoind-proxy": "Bitcoin Core (proxy)",
         "bitcoind-testnet": "Bitcoin Core (testnet4)",
       },
       "description": "The Bitcoin node type you would like to use for electrs",
@@ -46,28 +45,6 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
           "target": "config",
           "multi": false,
           "selector": "$.rpc.password",
-        },
-      },
-      "bitcoind-proxy": {
-        "username": {
-          "type": "pointer",
-          "name": "RPC Username",
-          "description": "The username for the RPC user allocated to electrs",
-          "subtype": "package",
-          "package-id": "btc-rpc-proxy",
-          "target": "config",
-          "multi": false,
-          "selector": "$.users[?(@.name == \"electrs\")].name",
-        },
-        "password": {
-          "type": "pointer",
-          "name": "RPC Password",
-          "description": "The password for the RPC user allocated to electrs",
-          "subtype": "package",
-          "package-id": "btc-rpc-proxy",
-          "target": "config",
-          "multi": false,
-          "selector": "$.users[?(@.name == \"electrs\")].password",
         },
       },
       "bitcoind-testnet": {

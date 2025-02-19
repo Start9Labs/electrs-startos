@@ -1,5 +1,5 @@
+.vscode
+docker-images
 electrs.s9pk
 image.tar
 scripts/embassy.js
-.vscode
-docker-images

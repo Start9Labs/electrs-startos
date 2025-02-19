@@ -14,11 +14,6 @@ if [ "$b_type" == "bitcoind-testnet" ]; then
   b_rpc_port=48332
   e_monitoring_port=44224
   e_db_path=/data/db/testnet4
-elif [ "$b_type" == "bitcoind-proxy" ]; then
-  b_host="btc-rpc-proxy.embassy"
-  b_rpc_port=8332
-  e_monitoring_port=4224
-  e_db_path=/data/db/bitcoin
 else
   b_host="bitcoind.embassy"
   b_rpc_port=8332
@@ -28,7 +23,7 @@ fi
 
  b_username=$(yq '.bitcoind.username' /data/start9/config.yaml)
  b_password=$(yq '.bitcoind.password' /data/start9/config.yaml)
- 
+
  #Get blockchain info from the bitcoin rpc
  b_gbc_result=$(curl -sS --user $b_username:$b_password --data-binary '{"jsonrpc": "1.0", "id": "sync-hck", "method": "getblockchaininfo", "params": []}' -H 'content-type: text/plain;' http://$b_host:$b_rpc_port/ 2>&1)
  error_code=$?
@@ -58,18 +53,18 @@ fi
     #Gather keys/values from prometheus rpc:
     curl_res=$(curl -sS localhost:$e_monitoring_port 2>/dev/null)
     error_code=$?
-    
+
     if [[ $error_code -ne 0 ]]; then
         echo "Error contacting the electrs Prometheus RPC" >&2
         exit 61
     fi
-    
+
     #Determine whether we are actively doing a database compaction:
     #compaction_res=$(echo -e "$features_res" | grep num-running-compactions | sed "s/\s$//g" | grep " [^0]$"|awk '{print $NF}'|head -1)
     #^The prometheus RPC's num-running-compactions key doesn't seem to correspond to actual
     # compaction events, so we'll determine compaction by another, dumber but accurate method:
     chk_numlines=100000 #Look through the last 100,000 lines of the db LOG
-    log_file="/data/db/bitcoin/LOG"
+    log_file="$e_db_path/LOG"
     tail_log="ionice -c3 tail -$chk_numlines $log_file"
     compaction_job=$($tail_log|nice -n19 grep EVENT_LOG|nice -n19 grep "ManualCompaction"|nice -n19 tail -1|nice -n19 cut -d" " -f7)
     if [ -n "$compaction_job" ] ; then

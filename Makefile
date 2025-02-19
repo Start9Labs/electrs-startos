@@ -15,6 +15,7 @@ install: $(PKG_ID).s9pk
 	start-cli package install $(PKG_ID).s9pk
 
 clean:
+	docker run --rm -it -v "$(shell pwd)"/configurator:/home/rust/src messense/rust-musl-cross:x86_64-musl cargo clean -q
 	rm -rf docker-images
 	rm -rf image.tar
 	rm -f $(PKG_ID).s9pk
@@ -28,7 +29,7 @@ arm: docker-images/aarch64.tar scripts/embassy.js
 x86: docker-images/x86_64.tar scripts/embassy.js
 	start-sdk pack
 
-$(PKG_ID).s9pk: manifest.yaml instructions.md scripts/embassy.js electrs/LICENSE docker-images/aarch64.tar docker-images/x86_64.tar
+$(PKG_ID).s9pk: manifest.yaml instructions.md scripts/embassy.js electrs/LICENSE docker-images/x86_64.tar docker-images/aarch64.tar
 	start-sdk pack
 
 docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-synced.sh check-electrum.sh configurator/target/aarch64-unknown-linux-musl/release/configurator $(ELECTRS_SRC)
