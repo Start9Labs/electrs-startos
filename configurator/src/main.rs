@@ -1,20 +1,32 @@
 use std::fs::File;
 use std::io::Write;
 
-use http::Uri;
 use serde::{
-    de::{Deserializer, Error as DeserializeError, Unexpected},
     Deserialize,
 };
 
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
 struct Config {
-    user: String,
-    password: String,
+    bitcoind: BitcoinCoreConfig,
     log_filters: String,
     index_batch_size: Option<u16>,
     index_lookup_limit: Option<u16>,
+}
+
+#[derive(Deserialize)]
+#[serde(tag = "type")]
+enum BitcoinCoreConfig {
+    #[serde(rename = "bitcoind")]
+    Bitcoind {
+        username: String,
+        password: String,
+    },
+    #[serde(rename = "bitcoind-testnet")]
+    BitcoindTestnet {
+        username: String,
+        password: String,
+    },
 }
 
 fn main() -> Result<(), anyhow::Error> {
@@ -22,6 +34,20 @@ fn main() -> Result<(), anyhow::Error> {
 
     {
         let mut outfile = File::create("/data/electrs.toml")?;
+
+        let (bitcoin_rpc_user, bitcoin_rpc_pass, bitcoin_rpc_host, bitcoin_rpc_port, bitcoin_p2p_host, bitcoin_p2p_port, network) =
+            match config.bitcoind {
+                BitcoinCoreConfig::Bitcoind { username, password } => {
+                    let hostname = format!("{}", "bitcoind.embassy");
+                    let network = format!("{}", "bitcoin");
+                    (username, password, hostname.clone(), 8332, hostname.clone(), 8333, network.clone())
+                }
+                BitcoinCoreConfig::BitcoindTestnet { username, password } => {
+                    let hostname = format!("{}", "bitcoind-testnet.embassy");
+                    let network = format!("{}", "testnet4");
+                    (username, password, hostname.clone(), 48332, hostname.clone(), 8333, network.clone())
+                }
+            };
 
         let mut index_batch_size: String = "".to_string();
         if config.index_batch_size.is_some() {
@@ -42,12 +68,13 @@ fn main() -> Result<(), anyhow::Error> {
         write!(
             outfile,
             include_str!("electrs.toml.template"),
-            bitcoin_rpc_user = config.user,
-            bitcoin_rpc_pass = config.password,
-            bitcoin_rpc_host = "bitcoind.embassy",
-            bitcoin_rpc_port = 8332,
-            bitcoin_p2p_host = "bitcoind.embassy",
-            bitcoin_p2p_port = 8333,
+            bitcoin_rpc_user = bitcoin_rpc_user,
+            bitcoin_rpc_pass = bitcoin_rpc_pass,
+            bitcoin_rpc_host = bitcoin_rpc_host,
+            bitcoin_rpc_port = bitcoin_rpc_port,
+            bitcoin_p2p_host = bitcoin_p2p_host,
+            bitcoin_p2p_port = bitcoin_p2p_port,
+            network = network,
             log_filters = config.log_filters,
             index_batch_size = index_batch_size,
             index_lookup_limit = index_lookup_limit,

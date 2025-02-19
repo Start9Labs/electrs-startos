@@ -1,7 +1,8 @@
 id: electrs
 title: "electrs"
-version: 0.10.9
+version: 0.10.9.1
 release-notes: |
+  * Update electrs-wrapper tag to v0.10.9.1, added support for testnet4
   * Update upstream electrs to [v0.10.9](https://github.com/romanz/electrs/blob/master/RELEASE-NOTES.md#0109-feb-01-2025)
   * Update Rust base Docker image
   * Make some parts of the check-synced healthcheck script (io)nice
@@ -79,13 +80,27 @@ dependencies:
   bitcoind:
     version: ">=0.21.1.2 <30.0.0"
     requirement:
-      type: "required"
+      type: "opt-out"
+      how: Set "Bitcoin Core" to "Bitcoin Core"
     description: Needed for peer interface and rpc interface.
     config:
       check:
         type: script
       auto-configure:
         type: script
+    requires-runtime-config: true
+  bitcoind-testnet:
+    version: '>=0.21.1.2 <29.0.0'
+    requirement:
+      type: 'opt-in'
+      how: Set "Bitcoin Core" type to "Bitcoin Core (testnet)"
+    description: Testnet Bitcoin Core node for testing purposes
+    config:
+      check:
+        type: script
+      auto-configure:
+        type: script
+    requires-runtime-config: true
 backup:
   create:
     type: script
