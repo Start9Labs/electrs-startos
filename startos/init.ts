@@ -9,7 +9,7 @@ import { configDefaults } from './utils'
 
 // **** Install ****
 const install = sdk.setupInstall(async ({ effects }) => {
-  await tomlFile.write(configDefaults)
+  await tomlFile.write(effects, configDefaults)
 })
 
 // **** Uninstall ****

@@ -34,7 +34,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     },
   })
 
-  const healthReceipts: T.HealthReceipt[] = [syncCheck]
+  const healthReceipts: T.HealthCheck[] = [syncCheck]
 
   /**
    * ======================== Daemons ========================

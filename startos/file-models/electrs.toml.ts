@@ -2,6 +2,7 @@ import { matches, FileHelper } from '@start9labs/start-sdk'
 import { configDefaults } from '../utils'
 const { object, literal, literals, natural } = matches
 
+// @TODO create default file in utils and use here
 const shape = object({
   cookie_file: literal('.bitcoin/.cookie').onMismatch('.bitcoin/.cookie'), // @TODO relative path?
   daemon_rpc_addr: literal('bitcoind.startos:8332').onMismatch(

@@ -65,5 +65,5 @@ export const config = sdk.Action.withInput(
   },
 
   // the execution function
-  async ({ effects, input }) => tomlFile.merge(input),
+  async ({ effects, input }) => tomlFile.merge(effects, input),
 )
