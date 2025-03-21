@@ -6,7 +6,7 @@ export const v0_10_8_1 = VersionInfo.of({
   releaseNotes: 'Revamped for StartOS 0.3.6',
   migrations: {
     up: async ({ effects }) => {
-      await rmdir('start9/config.yaml') // @TODO relative path?
+      await rmdir('/data/start9')
     },
     down: IMPOSSIBLE,
   },
