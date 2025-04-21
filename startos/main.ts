@@ -13,9 +13,12 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
 
-  const primaryContainer = await sdk.SubContainer.of(
+  const subcontainer = await sdk.SubContainer.of(
     effects,
     { imageId: 'electrs' },
+    sdk.Mounts.of()
+      .addVolume('main', null, '/data', false)
+      .addDependency('bitcoind', 'main', '/.bitcoin', '/.bitcoin', true),
     'primary',
   )
 
@@ -30,6 +33,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     name: 'Sync Progress',
     fn: async () => {
       // @TODO write function
+      const res = await subcontainer.exec([])
       return { message: 'health check succeeded', result: 'success' }
     },
   })
@@ -44,11 +48,8 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    * Each daemon defines its own health check, which can optionally be exposed to the user.
    */
   return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
-    subcontainer: primaryContainer,
+    subcontainer,
     command: ['electrs'],
-    mounts: sdk.Mounts.of()
-      .addVolume('main', null, '/data', false)
-      .addDependency('bitcoind', 'main', '/.bitcoin', '/.bitcoin', true),
     ready: {
       display: 'Electrum Server',
       fn: () =>
