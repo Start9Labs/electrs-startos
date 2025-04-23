@@ -1,6 +1,7 @@
 import { sdk } from './sdk'
 import { T } from '@start9labs/start-sdk'
 import { port } from './utils'
+import { manifest } from 'bitcoind-startos/startos/manifest'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   /**
@@ -18,7 +19,9 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     { imageId: 'electrs' },
     sdk.Mounts.of()
       .addVolume('main', null, '/data', false)
-      .addDependency('bitcoind', 'main', '/.bitcoin', '/.bitcoin', true),
+      .addDependency<
+        typeof manifest
+      >('bitcoind', 'main', '/.bitcoin', '/.bitcoin', true),
     'primary',
   )
 
