@@ -55,7 +55,7 @@ export const config = sdk.Action.withInput(
 
   // optionally pre-fill the input form
   async ({ effects }) => {
-    const values = await tomlFile.read.const(effects)
+    const values = await tomlFile.read().const(effects)
 
     return {
       log_filters: values?.log_filters,

@@ -18,10 +18,19 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     effects,
     { imageId: 'electrs' },
     sdk.Mounts.of()
-      .addVolume('main', null, '/data', false)
-      .addDependency<
-        typeof manifest
-      >('bitcoind', 'main', '/.bitcoin', '/.bitcoin', true),
+      .mountVolume({
+        volumeId: 'main',
+        subpath: null,
+        mountpoint: '/data',
+        readonly: false,
+      })
+      .mountDependency<typeof manifest>({
+        dependencyId: 'bitcoind',
+        volumeId: 'main',
+        subpath: '/.bitcoin',
+        mountpoint: '/.bitcoin',
+        readonly: true,
+      }),
     'primary',
   )
 
