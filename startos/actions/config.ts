@@ -1,4 +1,4 @@
-import { tomlFile } from '../file-models/electrs.toml'
+import { tomlFile } from '../fileModels/electrs.toml'
 import { sdk } from '../sdk'
 import { logFilters } from '../utils'
 
