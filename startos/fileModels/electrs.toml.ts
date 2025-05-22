@@ -21,6 +21,9 @@ const shape = object({
 })
 
 export const tomlFile = FileHelper.yaml(
-  '/media/startos/volumes/main/data/electrs.toml',
+  {
+    volumeId: 'main',
+    subpath: '/electrs.toml',
+  },
   shape.onMismatch(configDefaults),
 )
