@@ -61,7 +61,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    */
   return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
     subcontainer,
-    command: ['electrs'],
+    exec: { command: ['electrs'] },
     ready: {
       display: 'Electrum Server',
       fn: () =>
