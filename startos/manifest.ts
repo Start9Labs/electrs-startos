@@ -37,7 +37,7 @@ export const manifest = setupManifest({
     bitcoind: {
       description: 'Electrs uses Bitcoin to sync its indexes',
       optional: false,
-      s9pk: '../hello-world-startos/hello-world.s9pk', // @TODO
+      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.2/bitcoind.s9pk',
     },
   },
 })

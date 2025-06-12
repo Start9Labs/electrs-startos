@@ -2,25 +2,35 @@ import { matches, FileHelper } from '@start9labs/start-sdk'
 import { configDefaults } from '../utils'
 const { object, literal, literals, natural } = matches
 
-// @TODO create default file in utils and use here
+const {
+  cookie_file,
+  daemon_p2p_addr,
+  daemon_rpc_addr,
+  network,
+  electrum_rpc_addr,
+  log_filters,
+  index_batch_size,
+  index_lookup_limit,
+} = configDefaults
+
 const shape = object({
-  cookie_file: literal('.bitcoin/.cookie').onMismatch('.bitcoin/.cookie'), // @TODO relative path?
-  daemon_rpc_addr: literal('bitcoind.startos:8332').onMismatch(
-    'bitcoind.startos:8332',
+  cookie_file: literal(cookie_file).onMismatch(cookie_file),
+  daemon_rpc_addr: literal(daemon_rpc_addr).onMismatch(
+    daemon_rpc_addr,
   ),
-  daemon_p2p_addr: literal('bitcoind.startos:8333').onMismatch(
-    'bitcoind.startos:8333',
+  daemon_p2p_addr: literal(daemon_p2p_addr).onMismatch(
+    daemon_p2p_addr,
   ),
-  network: literals('bitcoin').onMismatch('bitcoin'),
-  electrum_rpc_addr: literal('0.0.0.0:50001').onMismatch('0.0.0.0:50001'),
+  network: literals(network).onMismatch(network),
+  electrum_rpc_addr: literal(electrum_rpc_addr).onMismatch(electrum_rpc_addr),
   log_filters: literals('ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE').onMismatch(
-    'INFO',
+    log_filters,
   ),
-  index_batch_size: natural.optional().onMismatch(10),
-  index_lookup_limit: natural.optional().onMismatch(0),
+  index_batch_size: natural.optional().onMismatch(index_batch_size),
+  index_lookup_limit: natural.optional().onMismatch(index_lookup_limit),
 })
 
-export const tomlFile = FileHelper.yaml(
+export const tomlFile = FileHelper.toml(
   {
     volumeId: 'main',
     subpath: '/electrs.toml',

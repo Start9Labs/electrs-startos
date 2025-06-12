@@ -1,13 +1,11 @@
+import { FileHelper } from '@start9labs/start-sdk'
 import { sdk } from './sdk'
-import { T } from '@start9labs/start-sdk'
 import { port } from './utils'
 import { manifest } from 'bitcoind-startos/startos/manifest'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   /**
    * ======================== Setup (optional) ========================
-   *
-   * In this section, we fetch any resources or run any desired preliminary commands.
    */
   console.info('Starting Electrs!')
 
@@ -27,49 +25,49 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       .mountDependency<typeof manifest>({
         dependencyId: 'bitcoind',
         volumeId: 'main',
-        subpath: '/.bitcoin',
-        mountpoint: '/.bitcoin',
+        subpath: null,
+        mountpoint: '/mnt/bitcoind',
         readonly: true,
       }),
     'primary',
   )
 
-  /**
-   * ======================== Additional Health Checks (optional) ========================
-   *
-   * In this section, we define *additional* health checks beyond those included with each daemon (below).
-   */
-
-  const syncCheck = sdk.HealthCheck.of(effects, {
-    id: 'sync',
-    name: 'Sync Progress',
-    fn: async () => {
-      // @TODO write function
-      const res = await subcontainer.exec([])
-      return { message: 'health check succeeded', result: 'success' }
-    },
-  })
-
-  const healthReceipts: T.HealthCheck[] = [syncCheck]
+  // Restart if Bitcoin .cookie changes
+  await FileHelper.string(`${subcontainer.rootfs}/mnt/bitcoin/.cookie`)
+    .read()
+    .const(effects)
 
   /**
    * ======================== Daemons ========================
-   *
-   * In this section, we create one or more daemons that define the service runtime.
-   *
-   * Each daemon defines its own health check, which can optionally be exposed to the user.
    */
-  return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
-    subcontainer,
-    exec: { command: ['electrs'] },
-    ready: {
-      display: 'Electrum Server',
-      fn: () =>
-        sdk.healthCheck.checkPortListening(effects, port, {
-          successMessage: 'Electrum server is ready and accepting connections',
-          errorMessage: 'Electrum server is unreachable',
-        }),
-    },
-    requires: [],
-  })
+  return sdk.Daemons.of(effects, started)
+    .addDaemon('primary', {
+      subcontainer,
+      exec: { command: ['electrs'] },
+      ready: {
+        display: 'Electrum Server',
+        fn: () =>
+          sdk.healthCheck.checkPortListening(effects, port, {
+            successMessage:
+              'Electrum server is ready and accepting connections',
+            errorMessage: 'Electrum server is unreachable',
+          }),
+      },
+      requires: [],
+    })
+    .addHealthCheck('sync', {
+      ready: {
+        display: 'Sync Progress',
+        fn: async () => {
+          // @TODO convert script to ts
+          const res = await subcontainer.exec(['./assets/check-synched.sh'])
+          if (res.exitCode === 61) 
+            return { message: res.stdout.toString(), result: 'loading' }
+          if (res.stderr)
+            return { message: res.stderr.toString(), result: 'failure' }
+          return { message: 'Fully synced', result: 'success' }
+        },
+      },
+      requires: ['primary'],
+    })
 })

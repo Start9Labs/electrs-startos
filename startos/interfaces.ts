@@ -19,7 +19,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     schemeOverride: null,
     username: null,
     path: '',
-    search: {},
+    query: {},
   })
 
   const mainReceipt = await mainMultiOrigin.export([main])

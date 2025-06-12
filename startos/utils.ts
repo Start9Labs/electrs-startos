@@ -8,10 +8,10 @@ export const logFilters = {
   TRACE: 'Trace',
 }
 
-type LogFilters = keyof typeof logFilters
+export type LogFilters = keyof typeof logFilters
 
 export const configDefaults = {
-  cookie_file: '.bitcoin/.cookie' as const,
+  cookie_file: '/mnt/bitcoind/.cookie' as const,
   daemon_rpc_addr: 'bitcoind.startos:8332' as const,
   daemon_p2p_addr: 'bitcoind.startos:8333' as const,
   network: 'bitcoin' as const,

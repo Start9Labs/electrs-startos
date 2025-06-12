@@ -1,12 +1,12 @@
 {
-  "name": "hello-world-startos",
+  "name": "electrs-startos",
   "scripts": {
     "build": "rm -rf ./javascript && ncc build startos/index.ts -o ./javascript",
     "prettier": "prettier --write startos",
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@start9labs/start-sdk": "^0.4.0-beta.27",
+    "@start9labs/start-sdk": "^0.4.0-beta.28",
     "bitcoind-startos": "git+https://github.com/Start9Labs/bitcoind-startos.git#update/040"
   },
   "devDependencies": {
