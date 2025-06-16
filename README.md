@@ -10,7 +10,6 @@
 
 Follow the documentation [guides](https://staging.docs.start9.com/packaging-guide/environment-setup.html).
 
-
 ## Building from source
 
 ```

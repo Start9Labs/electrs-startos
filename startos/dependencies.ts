@@ -2,7 +2,7 @@ import { sdk } from './sdk'
 import { config } from 'bitcoind-startos/startos/actions/config/other'
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
-  await sdk.action.createTask(effects, 'bitcoind', config, 'important', {
+  await sdk.action.createTask(effects, 'bitcoind', config, 'critical', {
     input: {
       kind: 'partial',
       value: {
