@@ -26,8 +26,9 @@ RUN apt-get update -qqy && \
     librocksdb7.8 && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-ARG ARCH
-ARG PLATFORM
+ARG TARGETARCH
+RUN curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} \
+    -o /usr/local/bin/yq && chmod +x /usr/local/bin/yq
 
 COPY --from=builder /usr/local/cargo/bin/electrs /bin/electrs
 

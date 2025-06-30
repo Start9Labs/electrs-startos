@@ -33,7 +33,7 @@ const shape = object({
 export const tomlFile = FileHelper.toml(
   {
     volumeId: 'main',
-    subpath: '/electrs.toml',
+    subpath: 'electrs.toml',
   },
   shape.onMismatch(configDefaults),
 )

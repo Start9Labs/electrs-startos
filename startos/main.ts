@@ -12,7 +12,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
 
-  const subcontainer = await sdk.SubContainer.of(
+  const electrsContainer = await sdk.SubContainer.of(
     effects,
     { imageId: 'electrs' },
     sdk.Mounts.of()
@@ -22,6 +22,11 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         mountpoint: '/data',
         readonly: false,
       })
+      .mountAssets({
+        subpath: '/scripts',
+        mountpoint: '/scripts',
+        type: 'directory',
+      })
       .mountDependency<typeof manifest>({
         dependencyId: 'bitcoind',
         volumeId: 'main',
@@ -29,11 +34,11 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         mountpoint: '/mnt/bitcoind',
         readonly: true,
       }),
-    'primary',
+    'electrs',
   )
 
   // Restart if Bitcoin .cookie changes
-  await FileHelper.string(`${subcontainer.rootfs}/mnt/bitcoin/.cookie`)
+  await FileHelper.string(`${electrsContainer.rootfs}/mnt/bitcoind/.cookie`)
     .read()
     .const(effects)
 
@@ -41,8 +46,8 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    * ======================== Daemons ========================
    */
   return sdk.Daemons.of(effects, started)
-    .addDaemon('primary', {
-      subcontainer,
+    .addDaemon('electrs', {
+      subcontainer: electrsContainer,
       exec: { command: ['electrs'] },
       ready: {
         display: 'Electrum Server',
@@ -60,14 +65,27 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         display: 'Sync Progress',
         fn: async () => {
           // @TODO convert script to ts
-          const res = await subcontainer.exec(['./assets/check-synched.sh'])
-          if (res.exitCode === 61) 
+          const res = await electrsContainer.exec(
+            ['sh', '-c', '/scripts/check-synced.sh'],
+            {
+              env: {
+                ROOT_FS: electrsContainer.rootfs,
+              },
+            },
+          )
+          console.log('******* RES EXIT CODE: ', res.exitCode, res)
+          if (res.exitCode === 61) {
+            console.log('******* RES STDOUT: ', res.stdout.toString())
             return { message: res.stdout.toString(), result: 'loading' }
-          if (res.stderr)
-            return { message: res.stderr.toString(), result: 'failure' }
-          return { message: 'Fully synced', result: 'success' }
+          }
+          if (res.exitCode === 0) {
+            console.log('******* EXIT CODE 0: ', res.stdout.toString())
+            return { message: res.stdout.toString(), result: 'success' }
+          }
+          console.log('******* RES STDERR: ', res.stderr.toString())
+          return { message: res.stderr.toString(), result: 'failure' }
         },
       },
-      requires: ['primary'],
+      requires: ['electrs'],
     })
 })

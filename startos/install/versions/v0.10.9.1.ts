@@ -5,7 +5,7 @@ import { LogFilters } from '../../utils'
 import { tomlFile } from '../../fileModels/electrs.toml'
 
 export const v0_10_9_1 = VersionInfo.of({
-  version: '0.10.9:1',
+  version: '0.10.9:1-alpha.1',
   releaseNotes: 'Updated for StartOS v0.4.0',
   migrations: {
     up: async ({ effects }) => {
