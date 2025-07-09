@@ -23,7 +23,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         readonly: false,
       })
       .mountAssets({
-        subpath: '/scripts',
+        subpath: null,
         mountpoint: '/scripts',
         type: 'directory',
       })
@@ -66,23 +66,19 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         fn: async () => {
           // @TODO convert script to ts
           const res = await electrsContainer.exec(
-            ['sh', '-c', '/scripts/check-synced.sh'],
+            ['sh', '/scripts/scripts/check-synced.sh'],
             {
               env: {
                 ROOT_FS: electrsContainer.rootfs,
               },
             },
           )
-          console.log('******* RES EXIT CODE: ', res.exitCode, res)
           if (res.exitCode === 61) {
-            console.log('******* RES STDOUT: ', res.stdout.toString())
             return { message: res.stdout.toString(), result: 'loading' }
           }
           if (res.exitCode === 0) {
-            console.log('******* EXIT CODE 0: ', res.stdout.toString())
             return { message: res.stdout.toString(), result: 'success' }
           }
-          console.log('******* RES STDERR: ', res.stderr.toString())
           return { message: res.stderr.toString(), result: 'failure' }
         },
       },
