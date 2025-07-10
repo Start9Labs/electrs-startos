@@ -24,7 +24,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       })
       .mountAssets({
         subpath: null,
-        mountpoint: '/scripts',
+        mountpoint: '/assets',
         type: 'directory',
       })
       .mountDependency<typeof manifest>({
@@ -66,7 +66,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         fn: async () => {
           // @TODO convert script to ts
           const res = await electrsContainer.exec(
-            ['sh', '/scripts/scripts/check-synced.sh'],
+            ['sh', '/assets/scripts/check-synced.sh'],
             {
               env: {
                 ROOT_FS: electrsContainer.rootfs,
