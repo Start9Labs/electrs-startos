@@ -65,6 +65,7 @@ else
             server_string=$(echo "$features_res" | yq '.result.server_version')
             if [ -n "$server_string" ]; then
                 #Index is synced to tip
+                echo "Fully synced"
                 exit 0
             else
                 echo "electrs RPC is not responding."
