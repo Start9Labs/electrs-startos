@@ -8,6 +8,8 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/romanz/electrs/',
   supportSite: 'https://github.com/romanz/electrs/issues',
   marketingSite: 'https://github.com/romanz/electrs/',
+  docsUrl:
+    'https://github.com/Start9Labs/electrs-startos/blob/master/instructions.md',
   donationUrl: null,
   description: {
     short: 'An efficient re-implementation of Electrum Server in Rust',
@@ -37,7 +39,7 @@ export const manifest = setupManifest({
     bitcoind: {
       description: 'Electrs uses Bitcoin to sync its indexes',
       optional: false,
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.6/bitcoind.s9pk',
+      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.8/bitcoind.s9pk',
     },
   },
 })

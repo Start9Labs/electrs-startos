@@ -1,12 +1,12 @@
-FROM rust:1.83-slim-bookworm AS builder
+FROM rust:1.88-slim-bookworm AS builder
 
-RUN apt-get update -qqy && \
-    apt-get upgrade -qqy && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
+RUN apt update -qqy
+RUN apt upgrade -qqy
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
     clang \
     cmake \
-    librocksdb-dev && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+    librocksdb-dev
+RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 WORKDIR /build
 COPY ./electrs .
@@ -17,14 +17,14 @@ RUN cargo +stable install --locked --path .
 
 FROM debian:bookworm-slim AS final
 
-RUN apt-get update -qqy && \
-    apt-get upgrade -qqy && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
+RUN apt update -qqy
+RUN apt upgrade -qqy
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
     bash \
     curl \
     ca-certificates \
-    librocksdb7.8 && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+    librocksdb7.8
+RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ARG TARGETARCH
 RUN curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} \
