@@ -11,7 +11,6 @@ export const logFilters = {
 export type LogFilters = keyof typeof logFilters
 
 export const configDefaults = {
-  auth: '',
   cookie_file: '/mnt/bitcoind/.cookie' as const,
   daemon_rpc_addr: 'bitcoind.startos:8332' as const,
   daemon_p2p_addr: 'bitcoind.startos:8333' as const,

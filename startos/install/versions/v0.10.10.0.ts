@@ -4,8 +4,8 @@ import { load } from 'js-yaml'
 import { LogFilters } from '../../utils'
 import { tomlFile } from '../../fileModels/electrs.toml'
 
-export const v0_10_9_1 = VersionInfo.of({
-  version: '0.10.9:1-alpha.2',
+export const v0_10_10_0 = VersionInfo.of({
+  version: '0.10.10:0-alpha.0',
   releaseNotes: 'Updated for StartOS v0.4.0',
   migrations: {
     up: async ({ effects }) => {
