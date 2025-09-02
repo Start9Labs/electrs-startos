@@ -14,6 +14,7 @@ const {
 } = configDefaults
 
 const shape = object({
+  auth: literal(undefined).onMismatch(undefined), // disallow user/pass as it can't be used with cookie auth
   cookie_file: literal(cookie_file).onMismatch(cookie_file),
   daemon_rpc_addr: literal(daemon_rpc_addr).onMismatch(
     daemon_rpc_addr,
