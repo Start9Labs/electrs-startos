@@ -3,6 +3,15 @@ import { readFile, rm } from 'fs/promises'
 import { load } from 'js-yaml'
 import { LogFilters } from '../../utils'
 import { tomlFile } from '../../fileModels/electrs.toml'
+import { configDefaults } from '../../utils'
+
+const {
+  cookie_file,
+  daemon_p2p_addr,
+  daemon_rpc_addr,
+  network,
+  electrum_rpc_addr,
+} = configDefaults
 
 export const v0_10_10_0 = VersionInfo.of({
   version: '0.10.10:0-alpha.0',
@@ -14,22 +23,27 @@ export const v0_10_10_0 = VersionInfo.of({
         'utf-8',
       ).catch(console.error)
 
-      if (oldConfigFile) {        
+      if (oldConfigFile) {
         const oldConfig = load(oldConfigFile) as {
           'log-filters': LogFilters
           'index-batch-size': number
           'index-lookup-limit': number
         }
-  
-        await tomlFile.merge(effects, {
+
+        await tomlFile.write(effects, {
+          cookie_file,
+          daemon_rpc_addr,
+          daemon_p2p_addr,
+          electrum_rpc_addr,
+          network,
           log_filters: oldConfig['log-filters'],
           index_batch_size: oldConfig['index-batch-size'],
-          index_lookup_limit: oldConfig['index-lookup-limit']
+          index_lookup_limit: oldConfig['index-lookup-limit'],
         })
-  
-        await rm('/media/startos/volumes/main/start9', { recursive: true }).catch(
-          console.error,
-        )
+
+        await rm('/media/startos/volumes/main/start9', {
+          recursive: true,
+        }).catch(console.error)
       }
     },
     down: IMPOSSIBLE,
