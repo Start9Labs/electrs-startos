@@ -20,11 +20,11 @@ fi
 
 b_block_count=$(echo "$b_gbc_result" | yq '.result.blocks' -)
 b_block_ibd=$(echo "$b_gbc_result" | yq '.result.initialblockdownload' -)
+b_block_hcount=$(echo "$b_gbc_result" | yq '.result.headers' -)
 if [ "$b_block_count" = "null" ]; then
     echo "Error ascertaining Bitcoin blockchain status: $b_gbc_error"
     exit 61
 elif [ "$b_block_ibd" != "false" ]; then
-    b_block_hcount=$(echo "$b_gbc_result" | yq '.result.headers' -)
     b_percent=$((${b_block_count}00 / b_block_hcount))
     printf "Bitcoin blockchain is not fully synced yet: %d of %d blocks (%d%%)\n" "$b_block_count" "$b_block_hcount" "$b_percent"
     exit 61
