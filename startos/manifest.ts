@@ -16,7 +16,7 @@ export const manifest = setupManifest({
   supportSite: 'https://github.com/romanz/electrs/issues',
   marketingSite: 'https://github.com/romanz/electrs/',
   docsUrl:
-    'https://github.com/Start9Labs/electrs-startos/blob/master/instructions.md',
+    'https://github.com/Start9Labs/electrs-startos/blob/master/docs/instructions.md',
   donationUrl: null,
   description: {
     short: 'An efficient re-implementation of Electrum Server in Rust',
