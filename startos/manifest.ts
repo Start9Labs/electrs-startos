@@ -34,7 +34,9 @@ export const manifest = setupManifest({
       arch: architectures,
     } as SDKImageInputSpec,
   },
-  hardwareRequirements: {},
+  hardwareRequirements: {
+    arch: architectures,
+  },
   alerts: {
     install: null,
     update: null,
