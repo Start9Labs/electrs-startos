@@ -45,9 +45,12 @@ export const manifest = setupManifest({
   },
   dependencies: {
     bitcoind: {
-      description: 'Electrs uses Bitcoin to sync its indexes',
+      description: 'Used to subscribe to new block events.',
       optional: false,
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.8/bitcoind.s9pk',
+      metadata: {
+        title: 'A Bitcoin Full Node',
+        icon: 'https://bitcoin.org/img/icons/opengraph.png',
+      },
     },
   },
 })
