@@ -17,13 +17,13 @@ Desktop Wallet
 
    Only if you plan on using TOR:
    
-   #. Click the `Network` button
+   - Click the `Network` button
 
-   #. Toggle the `Connect with Tor` to On 
+   - Toggle the `Connect with Tor` to On 
    
-   #. If you [set up a proxy](https://docs.start9.com/0.3.5.x/user-manual/connecting-tor#using-native-apps) you can optionally configure that here, otherwise Blockstream App will run it's own Tor daemon.
+   - If you [set up a proxy](https://docs.start9.com/0.3.5.x/user-manual/connecting-tor#using-native-apps) you can optionally configure that here, otherwise Blockstream App will run it's own Tor daemon.
 
-   #. Click `< Back`, 
+   - Click `< Back`, 
 
 1. Click `Custom servers and validation`
 
@@ -46,7 +46,7 @@ Mobile Wallet
 
    Only if you plan on using TOR:
 
-   #. Toggle `Connect with Tor` to On
+   - Toggle `Connect with Tor` to On
 
 1. Scroll down to the "Custom servers and validation" section.
 

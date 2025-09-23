@@ -24,10 +24,10 @@ Starting from StartOS v0.4.0 Electrs is available both over LAN (.local and IP) 
 
 Any wallet that allows a user to set an electrum server should work by copying and pasting interface details that it requests in the appropriate fields. Below is a non exhaustive list of wallets that have been tested. If something doesn't seem to work, it's always a good idea to check the wallet developers own documentation for any changes or updates to a process.
 
-- [BitBox](wallet-integrations/bitbox/guide.md)
-- [Blockstream App (Green)](wallet-integrations/blockstream/guide.md)
-- [BlueWallet](wallet-integrations/bluewallet/guide.md)
-- [Electrum](wallet-integrations/electrum/guide.md)
-- [Nunchuk](wallet-integrations/nunchuk/guide.md)
-- [Sparrow](wallet-integrations/sparrow/guide.md)
-- [Trezor](wallet-integrations/trezor/guide.md)
+- [BitBox](integrations/bitbox/guide.md)
+- [Blockstream App (Green)](integrations/blockstream/guide.md)
+- [BlueWallet](integrations/bluewallet/guide.md)
+- [Electrum](integrations/electrum/guide.md)
+- [Nunchuk](integrations/nunchuk/guide.md)
+- [Sparrow](integrations/sparrow/guide.md)
+- [Trezor](integrations/trezor/guide.md)
