@@ -2,25 +2,25 @@
 
 Note: You will need to be running Tor on your device, find guides to set this up here: https://start9.com/latest/user-manual/connecting/connecting-tor/tor-os/index
 
-1. Open the BitBox App and go to "Settings"
+1. Open the BitBox App and go to "Settings" > "Advance settings".
 
    ![BitBox](./assets/bitbox0.png)
 
-1. Click "Enable Tor Proxy"
+1. Click "Enable Tor Proxy".
 
    ![Tor](./assets/bitbox1.png)
 
-1. Enable the proxy and enter "127.0.0.1:9050" as the address, then click "Set Proxy Address"
+1. Enable the proxy and enter "127.0.0.1:9050" as the address, then click "Set Proxy Address".
 
    ![Tor](./assets/bitbox2.png)
 
-1. Back out and click on "Connect your own full node"
+1. Back out and click on "Connect your own full node".
 
    ![Full Node](./assets/bitbox3.png)
 
    - Note: You may wish to remove the default servers
 
-1. Under "Add a server," add your electrs onion address from your electrs service page (found on StartOS's electrs service page, under "Properties"), followed by :50001 for the port, as shown. Click "Check" to test.
+1. Under "Add a server," add your electrs onion address from your Electrs Dashboard > Service Interfaces, followed by :50001 for the port, as shown. Click "Check" to test.
 
    ![Add Server](./assets/bitbox4.png)
 
