@@ -6,7 +6,6 @@
 - Linux
 - Windows
 - Android
-- iOS
 
 **Contents**
 
