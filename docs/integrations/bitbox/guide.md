@@ -1,35 +1,26 @@
-# BitBox Integration Setup
+# BitBox
 
-Note: You will need to be running Tor on your device, find guides to set this up here: https://start9.com/latest/user-manual/connecting/connecting-tor/tor-os/index
+**Available For**
 
-1. Open the BitBox App and go to "Settings"
+- Linux
+- macOS
+- Windows
+- Android
+- iOS
 
-   ![BitBox](./assets/bitbox0.png)
 
-1. Click "Enable Tor Proxy"
+**Contents**
 
-   ![Tor](./assets/bitbox1.png)
+1. First, if you plan to user Tor, go to `Settings > Advanced settings` and click "Enable Tor Proxy", then enter "127.0.0.1:9050" as the address, then click "Set Proxy Address"
 
-1. Enable the proxy and enter "127.0.0.1:9050" as the address, then click "Set Proxy Address"
+   **Note:** Your proxy port may be different depending on how you [set up TOR](https://docs.start9.com/user-manual/connecting-remotely/tor.html) on your device. If you are on a mobile OS, you will need to download and run [Orbot-Tor VPN](https://orbot.app/en/).
 
-   ![Tor](./assets/bitbox2.png)
+1. Back out and click on `Connect your own full node`.
 
-1. Back out and click on "Connect your own full node"
+   **Note:** You may wish to remove the default servers.
 
-   ![Full Node](./assets/bitbox3.png)
+1. Under `Add a server` enter your preferred electrs hostname and port (found in `Services > Electrs` then the Interfaces section). Click "Check" to test. If you get an error, restart the app (Tor has not connected) and repeat this step.
 
-   - Note: You may wish to remove the default servers
+1. Click "Add" to finalize the addition of your node to BitBox. You will then see it under the list of servers above.
 
-1. Under "Add a server," add your electrs onion address from your electrs service page (found on StartOS's electrs service page, under "Properties"), followed by :50001 for the port, as shown. Click "Check" to test.
-
-   ![Add Server](./assets/bitbox4.png)
-
-1. If you get the following error, simply restart the app (Tor has not connected) and repeat from Step 4.
-
-   ![Error](./assets/bitbox5.png)
-
-1. You should see the following confirming a successful connection. Click "Add" to finalize the addition of your node to BitBox. You will then see it under the list of servers above.
-
-   ![Success](./assets/bitbox6.png)
-
-1. Restart the app and you're ready to use BitBox!!
+1. Restart the app and you're ready to use BitBox.
