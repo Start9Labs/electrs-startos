@@ -15,7 +15,7 @@
 
    **Note:** Your proxy port may be different depending on how you [set up TOR](https://docs.start9.com/user-manual/connecting-remotely/tor.html) on your device. If you are on a mobile OS, you will need to download and run [Orbot-Tor VPN](https://orbot.app/en/).
 
-1. Back out and click on `Connect your own full node`.
+1. In `Settings > Advanced settings`, click on `Connect your own full node`.
 
    **Note:** You may wish to remove the default servers.
 
