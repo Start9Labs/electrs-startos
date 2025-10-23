@@ -1,7 +1,8 @@
 id: electrs
 title: "electrs"
-version: 0.10.9.1
+version: 0.10.10
 release-notes: |
+  * Update electrs to [v0.10.10](https://github.com/romanz/electrs/releases/tag/v0.10.10)
   * Bump max allowed Bitcoin version
 license: mit
 wrapper-repo: "https://github.com/Start9Labs/electrs-startos"
