@@ -1,10 +1,8 @@
 id: electrs
 title: "electrs"
-version: 0.10.9
+version: 0.10.9.1
 release-notes: |
-  * Update upstream electrs to [v0.10.9](https://github.com/romanz/electrs/blob/master/RELEASE-NOTES.md#0109-feb-01-2025)
-  * Update Rust base Docker image
-  * Make some parts of the check-synced healthcheck script (io)nice
+  * Bump max allowed Bitcoin version
 license: mit
 wrapper-repo: "https://github.com/Start9Labs/electrs-startos"
 upstream-repo: "https://github.com/romanz/electrs"
@@ -77,7 +75,7 @@ alerts:
   start: "INSTABILITY WARNING: Electrs uses up to 1GB of RAM when syncing. Please make sure you have at least this much free RAM before starting Electrs, or you will cause your system to become unresponsive! This is especially risky if running alongside services that consume a lot of RAM on a 4GB system!"
 dependencies:
   bitcoind:
-    version: ">=0.21.1.2 <30.0.0"
+    version: ">=0.21.1.2 <32.0.0"
     requirement:
       type: "required"
     description: Needed for peer interface and rpc interface.
