@@ -1,6 +1,6 @@
 # Trezor Integration Setup
 
-Note: You will need to be running Tor on your device, find guides to set this up here: https://start9.com/latest/user-manual/connecting/connecting-tor/tor-os/index
+Note: You will need to be running Tor on your device, find guides to set this up here specific to your platform: https://docs.start9.com/0.3.5.x/user-manual/connecting-tor.html#using-native-apps
 
 1. Open Trezor and click on the gear icon in the top left to enter the Settings.
 
