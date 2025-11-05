@@ -2,7 +2,7 @@ import { sdk } from './sdk'
 import { port } from './utils'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
-  const multihost = sdk.MultiHost.of(effects, 'multihost')
+  const multihost = sdk.MultiHost.of(effects, 'electrum')
   const mainMultiOrigin = await multihost.bindPort(port, {
     protocol: null,
     addSsl: { preferredExternalPort: 50002, alpn: null },
