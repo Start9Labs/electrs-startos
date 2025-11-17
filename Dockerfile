@@ -1,10 +1,10 @@
-FROM rust:1.84.1-slim-bookworm AS builder
+FROM rust:1.91.1-slim-trixie AS builder
 
 RUN apt-get update -qqy && \
     apt-get upgrade -qqy && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
-    clang \
-    cmake \
+    build-essential \
+    libclang-dev \
     librocksdb-dev && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -15,7 +15,7 @@ ENV ROCKSDB_LIB_DIR=/usr/lib
 RUN rustup toolchain install stable
 RUN cargo +stable install --locked --path .
 
-FROM debian:bookworm-slim AS final
+FROM debian:trixie-slim AS final
 
 RUN apt-get update -qqy && \
     apt-get upgrade -qqy && \
@@ -25,7 +25,7 @@ RUN apt-get update -qqy && \
     tini \
     netcat-openbsd \
     ca-certificates \
-    librocksdb7.8 && \
+    librocksdb9.10 && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ARG ARCH

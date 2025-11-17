@@ -1,8 +1,10 @@
 id: electrs
 title: "electrs"
-version: 0.10.10
+version: 0.11.0
 release-notes: |
-  * Update electrs to [v0.10.10](https://github.com/romanz/electrs/releases/tag/v0.10.10)
+  * Update electrs to [v0.11.0](https://github.com/romanz/electrs/blob/master/RELEASE-NOTES.md#0110-nov-16-2025)
+  * Update RocksDB version to 9.10 (newly supported by electrs v0.11.0)
+  * Update base image to Debian 13 (Trixie) slim
   * Bump max allowed Bitcoin version
 license: mit
 wrapper-repo: "https://github.com/Start9Labs/electrs-startos"
@@ -76,7 +78,7 @@ alerts:
   start: "INSTABILITY WARNING: Electrs uses up to 1GB of RAM when syncing. Please make sure you have at least this much free RAM before starting Electrs, or you will cause your system to become unresponsive! This is especially risky if running alongside services that consume a lot of RAM on a 4GB system!"
 dependencies:
   bitcoind:
-    version: ">=0.21.1.2 <32.0.0"
+    version: ">=0.21.1.2 <33.0.0"
     requirement:
       type: "required"
     description: Needed for peer interface and rpc interface.
