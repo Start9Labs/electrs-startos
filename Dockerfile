@@ -3,7 +3,8 @@ FROM rust:1.91.1-slim-trixie AS builder
 RUN apt-get update -qqy && \
     apt-get upgrade -qqy && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
-    build-essential \
+    clang \
+    cmake \
     libclang-dev \
     librocksdb-dev && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
