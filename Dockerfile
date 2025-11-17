@@ -1,5 +1,6 @@
 FROM rust:1.91.1-slim-trixie AS builder
 
+RUN sed -i "s/http:/https:/g" /etc/apt/sources.list.d/debian.sources
 RUN apt-get update -qqy && \
     apt-get upgrade -qqy && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
@@ -17,6 +18,7 @@ RUN cargo +stable install --locked --path .
 
 FROM debian:trixie-slim AS final
 
+RUN sed -i "s/http:/https:/g" /etc/apt/sources.list.d/debian.sources
 RUN apt-get update -qqy && \
     apt-get upgrade -qqy && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends \
