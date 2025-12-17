@@ -3,7 +3,7 @@ import { sdk } from './sdk'
 import { port } from './utils'
 import { manifest } from 'bitcoind-startos/startos/manifest'
 
-export const main = sdk.setupMain(async ({ effects, started }) => {
+export const main = sdk.setupMain(async ({ effects }) => {
   /**
    * ======================== Setup (optional) ========================
    */
@@ -45,7 +45,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   /**
    * ======================== Daemons ========================
    */
-  return sdk.Daemons.of(effects, started)
+  return sdk.Daemons.of(effects)
     .addDaemon('electrs', {
       subcontainer: electrsContainer,
       exec: { command: ['electrs'] },
