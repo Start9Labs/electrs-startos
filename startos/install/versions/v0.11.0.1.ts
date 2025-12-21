@@ -18,33 +18,34 @@ export const v0_11_0_1 = VersionInfo.of({
   releaseNotes: 'Updated for StartOS v0.4.0',
   migrations: {
     up: async ({ effects }) => {
-      try {
-        const oldConfigFile = await readFile(
-          '/media/startos/volumes/main/start9/config.yaml',
-          'utf-8',
-        )
+      const oldConfigFile = await readFile(
+        '/media/startos/volumes/main/start9/config.yaml',
+        'utf-8',
+      )
 
-        if (oldConfigFile) {
-          const oldConfig = load(oldConfigFile) as {
-            'log-filters': LogFilters
-            'index-batch-size': number
-            'index-lookup-limit': number
-          }
-
-          await tomlFile.write(effects, {
-            cookie_file,
-            daemon_rpc_addr,
-            daemon_p2p_addr,
-            electrum_rpc_addr,
-            network,
-            log_filters: oldConfig['log-filters'],
-            index_batch_size: oldConfig['index-batch-size'],
-            index_lookup_limit: oldConfig['index-lookup-limit'],
-          })
+      if (oldConfigFile) {
+        const oldConfig = load(oldConfigFile) as {
+          'log-filters': LogFilters
+          'index-batch-size': number
+          'index-lookup-limit': number
         }
-      } catch {
-        console.log('No config.yaml found')
+
+        await tomlFile.write(effects, {
+          cookie_file,
+          daemon_rpc_addr,
+          daemon_p2p_addr,
+          electrum_rpc_addr,
+          network,
+          log_filters: oldConfig['log-filters'],
+          index_batch_size: oldConfig['index-batch-size'],
+          index_lookup_limit: oldConfig['index-lookup-limit'],
+        })
       }
+
+      // remove old start9 dir
+      await rm('/media/startos/volumes/main/start9', {
+        recursive: true,
+      }).catch(console.error)
     },
     down: IMPOSSIBLE,
   },
