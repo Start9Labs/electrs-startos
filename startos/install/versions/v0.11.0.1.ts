@@ -21,7 +21,7 @@ export const v0_11_0_1 = VersionInfo.of({
       const oldConfigFile = await readFile(
         '/media/startos/volumes/main/start9/config.yaml',
         'utf-8',
-      )
+      ).catch(console.log)
 
       if (oldConfigFile) {
         const oldConfig = load(oldConfigFile) as {
@@ -40,12 +40,12 @@ export const v0_11_0_1 = VersionInfo.of({
           index_batch_size: oldConfig['index-batch-size'],
           index_lookup_limit: oldConfig['index-lookup-limit'],
         })
-      }
 
-      // remove old start9 dir
-      await rm('/media/startos/volumes/main/start9', {
-        recursive: true,
-      }).catch(console.error)
+        // remove old start9 dir
+        await rm('/media/startos/volumes/main/start9', {
+          recursive: true,
+        }).catch(console.error)
+      }
     },
     down: IMPOSSIBLE,
   },
