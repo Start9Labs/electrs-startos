@@ -9,9 +9,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
    */
   console.info('Starting Electrs!')
 
-  const depResult = await sdk.checkDependencies(effects)
-  depResult.throwIfNotSatisfied()
-
   const electrsContainer = await sdk.SubContainer.of(
     effects,
     { imageId: 'electrs' },
