@@ -2,7 +2,7 @@
 
 You will need to be running Tor on your device. Refer to Start9's Tor guide:
 
-https://start9.com/latest/user-manual/connecting/connecting-tor/tor-os/index
+https://docs.start9.com/0.3.5.x/user-manual/connecting-tor.html
 
 ## Nunchuk mobile
 
