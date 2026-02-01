@@ -1,3 +1,4 @@
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { port } from './utils'
 
@@ -14,9 +15,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     secure: null,
   })
   const main = sdk.createInterface(effects, {
-    name: 'Main',
+    name: i18n('Main'),
     id: 'main',
-    description: 'The main interface for accessing electrs',
+    description: i18n('The main interface for accessing electrs'),
     type: 'api',
     masked: false,
     schemeOverride: null,

@@ -1,3 +1,4 @@
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { otherConfig } from 'bitcoind-startos/startos/actions/config/other'
 
@@ -10,7 +11,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       },
     },
     when: { condition: 'input-not-matches', once: false },
-    reason: 'Electrs requires an archival bitcoin node.',
+    reason: i18n('Electrs requires an archival bitcoin node.'),
   })
 
   return {

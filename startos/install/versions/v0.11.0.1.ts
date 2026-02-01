@@ -14,7 +14,13 @@ const {
 
 export const v0_11_0_1 = VersionInfo.of({
   version: '0.11.0:1-beta.1',
-  releaseNotes: 'Updated for StartOS v0.4.0',
+  releaseNotes: {
+    en_US: 'Updated for StartOS v0.4.0',
+    es_ES: 'Actualizado para StartOS v0.4.0',
+    de_DE: 'Aktualisiert für StartOS v0.4.0',
+    pl_PL: 'Zaktualizowany dla StartOS v0.4.0',
+    fr_FR: 'Mis à jour pour StartOS v0.4.0',
+  },
   migrations: {
     up: async ({ effects }) => {
       // get old config.yaml

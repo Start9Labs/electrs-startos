@@ -1,4 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
+import { short, long } from './i18n'
 
 export const manifest = setupManifest({
   id: 'electrs',
@@ -11,10 +12,7 @@ export const manifest = setupManifest({
   docsUrl:
     'https://github.com/Start9Labs/electrs-startos/blob/master/docs/instructions.md',
   donationUrl: null,
-  description: {
-    short: 'An efficient re-implementation of Electrum Server in Rust',
-    long: 'Enables a user to self host an Electrum server, with required hardware resources not much beyond those of a full node. The server indexes the entire Bitcoin blockchain, and the resulting index enables fast queries for any given user wallet, allowing the user to keep real-time track of balances and transaction history using the Electrum wallet. Since it runs on the users own machine, there is no need for the wallet to communicate with external Electrum servers, thus preserving the privacy of the users addresses and balances.',
-  },
+  description: { short, long },
   volumes: ['main'],
   images: {
     electrs: {
@@ -24,15 +22,8 @@ export const manifest = setupManifest({
           workdir: '.',
         },
       },
+      arch: ['x86_64', 'aarch64'],
     },
-  },
-  alerts: {
-    install: null,
-    update: null,
-    uninstall: null,
-    restore: null,
-    start: null,
-    stop: null,
   },
   dependencies: {
     bitcoind: {

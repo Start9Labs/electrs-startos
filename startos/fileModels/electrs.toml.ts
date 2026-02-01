@@ -1,4 +1,5 @@
 import { matches, FileHelper } from '@start9labs/start-sdk'
+import { sdk } from '../sdk'
 import { configDefaults } from '../utils'
 const { object, literal, literals, natural } = matches
 
@@ -32,7 +33,7 @@ const shape = object({
 
 export const tomlFile = FileHelper.toml(
   {
-    volumeId: 'main',
+    base: sdk.volumes.main,
     subpath: 'electrs.toml',
   },
   shape.onMismatch(configDefaults),

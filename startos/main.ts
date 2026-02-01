@@ -1,4 +1,5 @@
 import { FileHelper } from '@start9labs/start-sdk'
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { port } from './utils'
 import { manifest } from 'bitcoind-startos/startos/manifest'
@@ -7,7 +8,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   /**
    * ======================== Setup (optional) ========================
    */
-  console.info('Starting Electrs!')
+  console.info(i18n('Starting Electrs!'))
 
   const electrsContainer = await sdk.SubContainer.of(
     effects,
@@ -47,19 +48,19 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: electrsContainer,
       exec: { command: ['electrs'] },
       ready: {
-        display: 'Electrum Server',
+        display: i18n('Electrum Server'),
         fn: () =>
           sdk.healthCheck.checkPortListening(effects, port, {
             successMessage:
-              'Electrum server is ready and accepting connections',
-            errorMessage: 'Electrum server is unreachable',
+              i18n('Electrum server is ready and accepting connections'),
+            errorMessage: i18n('Electrum server is unreachable'),
           }),
       },
       requires: [],
     })
     .addHealthCheck('sync', {
       ready: {
-        display: 'Sync Progress',
+        display: i18n('Sync Progress'),
         fn: async () => {
           // @TODO convert script to ts
           const res = await electrsContainer.exec(

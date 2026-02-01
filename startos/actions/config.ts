@@ -1,3 +1,4 @@
+import { i18n } from '../i18n'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { sdk } from '../sdk'
 import { logFilters } from '../utils'
@@ -6,14 +7,18 @@ const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
   log_filters: Value.select({
-    name: 'Log Level',
-    description: 'Select the level of log verbosity. Less is usually better.',
+    name: i18n('Log Level'),
+    description: i18n(
+      'Select the level of log verbosity. Less is usually better.',
+    ),
     values: logFilters,
     default: 'INFO',
   }),
   index_batch_size: Value.number({
-    name: 'Index Batch Size',
-    description: 'Maximum number of blocks to request from bitcoind per batch.',
+    name: i18n('Index Batch Size'),
+    description: i18n(
+      'Maximum number of blocks to request from bitcoind per batch.',
+    ),
     required: true,
     default: 10,
     integer: true,
@@ -21,18 +26,20 @@ export const inputSpec = InputSpec.of({
     max: 10000,
     placeholder: '10',
     step: 10,
-    units: 'blocks',
+    units: i18n('blocks'),
   }),
   index_lookup_limit: Value.number({
-    name: 'Index Lookup Limit',
-    description: `Number of transactions to lookup before returning an error, to prevent 'too popular' addresses from causing the RPC server to time out. Enter '0' for no limit.`,
+    name: i18n('Index Lookup Limit'),
+    description: i18n(
+      "Number of transactions to lookup before returning an error, to prevent 'too popular' addresses from causing the RPC server to time out. Enter '0' for no limit.",
+    ),
     required: true,
     default: 0,
     integer: true,
     min: 0,
     max: 10000,
     placeholder: '0',
-    units: 'transactions',
+    units: i18n('transactions'),
   }),
 })
 
@@ -42,8 +49,8 @@ export const config = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Configure',
-    description: 'Customize your electrs Electrum server',
+    name: i18n('Configure'),
+    description: i18n('Customize your electrs Electrum server'),
     warning: null,
     allowedStatuses: 'any',
     group: null,
