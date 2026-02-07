@@ -9,8 +9,7 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/romanz/electrs/',
   supportSite: 'https://github.com/romanz/electrs/issues',
   marketingSite: 'https://github.com/romanz/electrs/',
-  docsUrl:
-    'https://github.com/Start9Labs/electrs-startos/blob/master/docs/instructions.md',
+  docsUrl: 'https://github.com/romanz/electrs',
   donationUrl: null,
   description: { short, long },
   volumes: ['main'],
