@@ -12,14 +12,14 @@ const {
   electrum_rpc_addr,
 } = configDefaults
 
-export const v0_11_0_1 = VersionInfo.of({
-  version: '0.11.0:1-beta.1',
+export const v0_11_0_2_b0 = VersionInfo.of({
+  version: '0.11.0:2-beta.0',
   releaseNotes: {
-    en_US: 'Updated for StartOS v0.4.0',
-    es_ES: 'Actualizado para StartOS v0.4.0',
-    de_DE: 'Aktualisiert für StartOS v0.4.0',
-    pl_PL: 'Zaktualizowany dla StartOS v0.4.0',
-    fr_FR: 'Mis à jour pour StartOS v0.4.0',
+    en_US: 'Updated StartOS packaging',
+    es_ES: 'Actualizado el empaquetado de StartOS',
+    de_DE: 'StartOS-Paketierung aktualisiert',
+    pl_PL: 'Zaktualizowano pakietowanie StartOS',
+    fr_FR: 'Mise à jour du packaging StartOS',
   },
   migrations: {
     up: async ({ effects }) => {
