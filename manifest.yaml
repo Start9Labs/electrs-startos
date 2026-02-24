@@ -2,7 +2,7 @@ id: electrs
 title: "electrs"
 version: 0.11.1
 release-notes: |
-  * Update electrs to [v0.11.1](https://github.com/romanz/electrs/releases/tag/v0.11.1)
+  * Update electrs to [v0.11.1](https://github.com/romanz/electrs/blob/master/RELEASE-NOTES.md#0111-feb-22-2026)
   * Bump rust version
 license: mit
 wrapper-repo: "https://github.com/Start9Labs/electrs-startos"
