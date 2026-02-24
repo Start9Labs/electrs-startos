@@ -13,7 +13,7 @@ export const migration: T.ExpectedExports.migration =
             };
           },
           true,
-          { version: "0.9.14.2", type: "up" }
+          { version: "0.9.14.2", type: "up" },
         ),
         down: compat.migrations.updateConfig(
           (config: any) => {
@@ -31,9 +31,9 @@ export const migration: T.ExpectedExports.migration =
             };
           },
           true,
-          { version: "0.9.14.2", type: "down" }
+          { version: "0.9.14.2", type: "down" },
         ),
       },
     },
-    "0.11.0"
+    "0.11.1",
   );

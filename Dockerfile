@@ -1,4 +1,4 @@
-FROM rust:1.91.1-slim-trixie AS builder
+FROM rust:1.93.1-slim-trixie AS builder
 
 RUN apt-get update -qqy && \
     apt-get upgrade -qqy && \
