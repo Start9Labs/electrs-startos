@@ -1,5 +1,5 @@
-import { i18n } from '../i18n'
 import { tomlFile } from '../fileModels/electrs.toml'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { logFilters } from '../utils'
 
@@ -61,15 +61,7 @@ export const config = sdk.Action.withInput(
   inputSpec,
 
   // optionally pre-fill the input form
-  async ({ effects }) => {
-    const values = await tomlFile.read().const(effects)
-
-    return {
-      log_filters: values?.log_filters,
-      index_lookup_limit: values?.index_lookup_limit,
-      index_batch_size: values?.index_batch_size,
-    }
-  },
+  async ({ effects }) => tomlFile.read().once(),
 
   // the execution function
   async ({ effects, input }) => tomlFile.merge(effects, input),

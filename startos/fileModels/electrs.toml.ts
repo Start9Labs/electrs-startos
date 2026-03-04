@@ -1,34 +1,23 @@
-import { matches, FileHelper } from '@start9labs/start-sdk'
+import { FileHelper, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
-import { configDefaults } from '../utils'
-const { object, literal, literals, natural } = matches
 
-const {
-  cookie_file,
-  daemon_p2p_addr,
-  daemon_rpc_addr,
-  network,
-  electrum_rpc_addr,
-  log_filters,
-  index_batch_size,
-  index_lookup_limit,
-} = configDefaults
-
-const shape = object({
-  cookie_file: literal(cookie_file).onMismatch(cookie_file),
-  daemon_rpc_addr: literal(daemon_rpc_addr).onMismatch(
-    daemon_rpc_addr,
-  ),
-  daemon_p2p_addr: literal(daemon_p2p_addr).onMismatch(
-    daemon_p2p_addr,
-  ),
-  network: literals(network).onMismatch(network),
-  electrum_rpc_addr: literal(electrum_rpc_addr).onMismatch(electrum_rpc_addr),
-  log_filters: literals('ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE').onMismatch(
-    log_filters,
-  ),
-  index_batch_size: natural.optional().onMismatch(index_batch_size),
-  index_lookup_limit: natural.optional().onMismatch(index_lookup_limit),
+export const shape = z.object({
+  cookie_file: z.literal('/mnt/bitcoind/.cookie').catch('/mnt/bitcoind/.cookie'),
+  daemon_rpc_addr: z
+    .literal('bitcoind.startos:8332')
+    .catch('bitcoind.startos:8332'),
+  daemon_p2p_addr: z
+    .literal('bitcoind.startos:8333')
+    .catch('bitcoind.startos:8333'),
+  network: z.literal('bitcoin').catch('bitcoin'),
+  electrum_rpc_addr: z
+    .literal('0.0.0.0:50001')
+    .catch('0.0.0.0:50001'),
+  log_filters: z
+    .enum(['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'])
+    .catch('INFO'),
+  index_batch_size: z.number().int().optional().catch(10),
+  index_lookup_limit: z.number().int().optional().catch(0),
 })
 
 export const tomlFile = FileHelper.toml(
@@ -36,5 +25,5 @@ export const tomlFile = FileHelper.toml(
     base: sdk.volumes.main,
     subpath: 'electrs.toml',
   },
-  shape.onMismatch(configDefaults),
+  shape,
 )

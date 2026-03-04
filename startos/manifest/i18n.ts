@@ -1,3 +1,11 @@
+export const bitcoindDescription = {
+  en_US: 'Used to subscribe to new block events.',
+  es_ES: 'Se utiliza para suscribirse a eventos de nuevos bloques.',
+  de_DE: 'Wird verwendet, um neue Block-Ereignisse zu abonnieren.',
+  pl_PL: 'Używany do subskrybowania wydarzeń nowych bloków.',
+  fr_FR: "Utilisé pour s'abonner aux événements de nouveaux blocs.",
+}
+
 export const short = {
   en_US: 'An efficient re-implementation of Electrum Server in Rust',
   es_ES: 'Una reimplementación eficiente del servidor Electrum en Rust',

@@ -1,15 +1,15 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { short, long } from './i18n'
+import { bitcoindDescription, short, long } from './i18n'
 
 export const manifest = setupManifest({
   id: 'electrs',
   title: 'Electrs',
-  license: 'mit',
-  wrapperRepo: 'https://github.com/Start9Labs/electrs-startos/',
+  license: 'MIT',
+  packageRepo:
+    'https://github.com/Start9Labs/electrs-startos/tree/update/040',
   upstreamRepo: 'https://github.com/romanz/electrs/',
-  supportSite: 'https://github.com/romanz/electrs/issues',
-  marketingSite: 'https://github.com/romanz/electrs/',
-  docsUrl: 'https://github.com/romanz/electrs',
+  marketingUrl: 'https://github.com/romanz/electrs/',
+  docsUrls: ['https://github.com/romanz/electrs'],
   donationUrl: null,
   description: { short, long },
   volumes: ['main'],
@@ -26,11 +26,11 @@ export const manifest = setupManifest({
   },
   dependencies: {
     bitcoind: {
-      description: 'Used to subscribe to new block events.',
+      description: bitcoindDescription,
       optional: false,
       metadata: {
-        title: 'A Bitcoin Full Node',
-        icon: 'https://bitcoin.org/img/icons/opengraph.png',
+        title: 'Bitcoin Core',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/refs/heads/040/30.2/dep-icon.svg',
       },
     },
   },

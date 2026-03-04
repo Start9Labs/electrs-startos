@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icon.png" alt="Electrs Logo" width="21%">
+  <img src="icon.svg" alt="Electrs Logo" width="21%">
 </p>
 
 # Electrs on StartOS
@@ -7,8 +7,8 @@
 > **Upstream docs:** <https://github.com/romanz/electrs>
 >
 > Everything not listed in this document should behave the same as upstream
-> Electrs v0.11.0. If a feature, setting, or behavior is not mentioned
-> here, the upstream documentation is accurate and fully applicable.
+> Electrs. If a feature, setting, or behavior is not mentioned here, the
+> upstream documentation is accurate and fully applicable.
 
 [Electrs](https://github.com/romanz/electrs) is an efficient Electrum Server implementation in Rust, optimized for personal use. It indexes the Bitcoin blockchain and serves Electrum protocol queries to wallets.
 
@@ -147,7 +147,7 @@ The service automatically:
 **Bitcoin Core requirements:**
 - `server=1` must be enabled (default on StartOS)
 - `txindex=1` is NOT required (unlike some other Electrum servers)
-- Works with pruned nodes
+- Pruning must be disabled (archival node required)
 
 ---
 
@@ -216,7 +216,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 
 ```yaml
 package_id: electrs
-upstream_version: 0.11.0
+upstream_version: latest
 image: dockerBuild (custom)
 architectures: [x86_64, aarch64]
 volumes:

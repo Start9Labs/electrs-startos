@@ -2,24 +2,20 @@ import { VersionInfo, IMPOSSIBLE, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
 import { LogFilters } from '../../utils'
 import { tomlFile } from '../../fileModels/electrs.toml'
-import { configDefaults } from '../../utils'
 
-const {
-  cookie_file,
-  daemon_p2p_addr,
-  daemon_rpc_addr,
-  network,
-  electrum_rpc_addr,
-} = configDefaults
-
-export const v0_11_0_2_b0 = VersionInfo.of({
-  version: '0.11.0:2-beta.0',
+export const v0_11_1_0_b0 = VersionInfo.of({
+  version: '0.11.1:0-beta.0',
   releaseNotes: {
-    en_US: 'Updated StartOS packaging',
-    es_ES: 'Actualizado el empaquetado de StartOS',
-    de_DE: 'StartOS-Paketierung aktualisiert',
-    pl_PL: 'Zaktualizowano pakietowanie StartOS',
-    fr_FR: 'Mise à jour du packaging StartOS',
+    en_US:
+      'Update to upstream v0.11.1: API compliance fix for transaction.id_from_pos, dependency updates.',
+    es_ES:
+      'Actualización a upstream v0.11.1: corrección de cumplimiento de API para transaction.id_from_pos, actualizaciones de dependencias.',
+    de_DE:
+      'Update auf upstream v0.11.1: API-Konformitätsfix für transaction.id_from_pos, Abhängigkeitsaktualisierungen.',
+    pl_PL:
+      'Aktualizacja do upstream v0.11.1: poprawka zgodności API dla transaction.id_from_pos, aktualizacje zależności.',
+    fr_FR:
+      'Mise à jour vers upstream v0.11.1 : correction de conformité API pour transaction.id_from_pos, mises à jour des dépendances.',
   },
   migrations: {
     up: async ({ effects }) => {
@@ -37,11 +33,11 @@ export const v0_11_0_2_b0 = VersionInfo.of({
 
       if (configYaml) {
         await tomlFile.write(effects, {
-          cookie_file,
-          daemon_rpc_addr,
-          daemon_p2p_addr,
-          electrum_rpc_addr,
-          network,
+          cookie_file: '/mnt/bitcoind/.cookie',
+          daemon_rpc_addr: 'bitcoind.startos:8332',
+          daemon_p2p_addr: 'bitcoind.startos:8333',
+          electrum_rpc_addr: '0.0.0.0:50001',
+          network: 'bitcoin',
           log_filters: configYaml['log-filters'],
           index_batch_size: configYaml['index-batch-size'],
           index_lookup_limit: configYaml['index-lookup-limit'],
