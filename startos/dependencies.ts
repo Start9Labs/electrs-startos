@@ -1,9 +1,9 @@
+import { autoconfig } from 'bitcoind-startos/startos/actions/config/autoconfig'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { otherConfig } from 'bitcoind-startos/startos/actions/config/other'
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
-  await sdk.action.createTask(effects, 'bitcoind', otherConfig, 'critical', {
+  await sdk.action.createTask(effects, 'bitcoind', autoconfig, 'critical', {
     input: {
       kind: 'partial',
       value: {
