@@ -1,15 +1,14 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { bitcoindDescription, short, long } from './i18n'
+import { bitcoindDescription, long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'electrs',
   title: 'Electrs',
   license: 'MIT',
-  packageRepo:
-    'https://github.com/Start9Labs/electrs-startos/tree/update/040',
+  packageRepo: 'https://github.com/Start9Labs/electrs-startos/tree/update/040',
   upstreamRepo: 'https://github.com/romanz/electrs/',
   marketingUrl: 'https://github.com/romanz/electrs/',
-  docsUrls: ['https://github.com/romanz/electrs'],
+  docsUrls: ['https://github.com/romanz/electrs/blob/master/README.md'],
   donationUrl: null,
   description: { short, long },
   volumes: ['main'],
