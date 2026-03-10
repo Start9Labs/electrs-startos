@@ -4,7 +4,7 @@
 
 # Electrs on StartOS
 
-> **Upstream docs:** <https://github.com/romanz/electrs>
+> **Upstream docs:** <https://github.com/romanz/electrs/blob/master/README.md>
 >
 > Everything not listed in this document should behave the same as upstream
 > Electrs. If a feature, setting, or behavior is not mentioned here, the
