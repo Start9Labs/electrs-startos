@@ -3,8 +3,8 @@ import { readFile, rm } from 'fs/promises'
 import { LogFilters } from '../../utils'
 import { tomlFile } from '../../fileModels/electrs.toml'
 
-export const v_0_11_1_1_b0 = VersionInfo.of({
-  version: '0.11.1:1-beta.0',
+export const v_0_11_1_1_b1 = VersionInfo.of({
+  version: '0.11.1:1-beta.1',
   releaseNotes: {
     en_US:
       'Update to upstream v0.11.1: API compliance fix for transaction.id_from_pos, dependency updates.',
