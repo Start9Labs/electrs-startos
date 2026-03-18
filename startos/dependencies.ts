@@ -7,7 +7,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
     input: {
       kind: 'partial',
       value: {
-        prune: 0,
+        prune: undefined,
       },
     },
     when: { condition: 'input-not-matches', once: false },
