@@ -1,10 +1,10 @@
-import { VersionInfo, IMPOSSIBLE, YAML } from '@start9labs/start-sdk'
+import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
-import { LogFilters } from '../../utils'
 import { tomlFile } from '../../fileModels/electrs.toml'
+import { LogFilters } from '../../utils'
 
-export const v_0_11_1_1_b1 = VersionInfo.of({
-  version: '0.11.1:1-beta.1',
+export const v_0_11_1_1_b2 = VersionInfo.of({
+  version: '0.11.1:1-beta.2',
   releaseNotes: {
     en_US:
       'Update to upstream v0.11.1: API compliance fix for transaction.id_from_pos, dependency updates.',
