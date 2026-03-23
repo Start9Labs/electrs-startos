@@ -3,19 +3,14 @@ import { readFile, rm } from 'fs/promises'
 import { tomlFile } from '../../fileModels/electrs.toml'
 import { LogFilters } from '../../utils'
 
-export const v_0_11_1_1_b3 = VersionInfo.of({
-  version: '0.11.1:1-beta.3',
+export const v_0_11_1_1_b4 = VersionInfo.of({
+  version: '0.11.1:1-beta.4',
   releaseNotes: {
-    en_US:
-      'Update to upstream v0.11.1: API compliance fix for transaction.id_from_pos, dependency updates.',
-    es_ES:
-      'Actualización a upstream v0.11.1: corrección de cumplimiento de API para transaction.id_from_pos, actualizaciones de dependencias.',
-    de_DE:
-      'Update auf upstream v0.11.1: API-Konformitätsfix für transaction.id_from_pos, Abhängigkeitsaktualisierungen.',
-    pl_PL:
-      'Aktualizacja do upstream v0.11.1: poprawka zgodności API dla transaction.id_from_pos, aktualizacje zależności.',
-    fr_FR:
-      'Mise à jour vers upstream v0.11.1 : correction de conformité API pour transaction.id_from_pos, mises à jour des dépendances.',
+    en_US: 'Update to StartOS SDK beta.65',
+    es_ES: 'Actualización a StartOS SDK beta.65',
+    de_DE: 'Update auf StartOS SDK beta.65',
+    pl_PL: 'Aktualizacja do StartOS SDK beta.65',
+    fr_FR: 'Mise à jour vers StartOS SDK beta.65',
   },
   migrations: {
     up: async ({ effects }) => {

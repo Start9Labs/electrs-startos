@@ -216,7 +216,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 
 ```yaml
 package_id: electrs
-upstream_version: latest
 image: dockerBuild (custom)
 architectures: [x86_64, aarch64]
 volumes:
