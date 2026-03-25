@@ -1,10 +1,10 @@
 import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
-import { tomlFile } from '../../fileModels/electrs.toml'
-import { LogFilters } from '../../utils'
+import { tomlFile } from '../fileModels/electrs.toml'
+import { LogFilters } from '../utils'
 
-export const v_0_11_1_1_b4 = VersionInfo.of({
-  version: '0.11.1:1-beta.4',
+export const v_0_11_1_1_b5 = VersionInfo.of({
+  version: '0.11.1:1-beta.5',
   releaseNotes: {
     en_US: 'Update to StartOS SDK beta.65',
     es_ES: 'Actualización a StartOS SDK beta.65',
