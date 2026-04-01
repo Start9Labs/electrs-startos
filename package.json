@@ -1,0 +1,25 @@
+{
+  "name": "electrs-startos",
+  "scripts": {
+    "build": "rm -rf ./javascript && ncc build startos/index.ts -o ./javascript",
+    "prettier": "prettier --write startos",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@start9labs/start-sdk": "1.0.0",
+    "bitcoind-startos": "git+https://github.com/Start9Labs/bitcoind-startos.git#30.x",
+    "tor-startos": "git+https://github.com/Start9Labs/tor-startos.git#master"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.1",
+    "@vercel/ncc": "^0.38.3",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  }
+}

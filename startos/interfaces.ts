@@ -1,0 +1,32 @@
+import { i18n } from './i18n'
+import { sdk } from './sdk'
+import { port } from './utils'
+
+export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
+  const multihost = sdk.MultiHost.of(effects, 'electrum')
+  const mainMultiOrigin = await multihost.bindPort(port, {
+    protocol: null,
+    addSsl: {
+      preferredExternalPort: 50002,
+      alpn: null,
+      addXForwardedHeaders: false,
+    },
+    preferredExternalPort: port,
+    secure: null,
+  })
+  const main = sdk.createInterface(effects, {
+    name: i18n('Main'),
+    id: 'main',
+    description: i18n('The main interface for accessing electrs'),
+    type: 'api',
+    masked: false,
+    schemeOverride: null,
+    username: null,
+    path: '',
+    query: {},
+  })
+
+  const mainReceipt = await mainMultiOrigin.export([main])
+
+  return [mainReceipt]
+})
