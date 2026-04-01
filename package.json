@@ -6,9 +6,9 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@start9labs/start-sdk": "^0.4.0-beta.66",
-    "bitcoind-startos": "git+https://github.com/Start9Labs/bitcoind-startos.git#040/30.2",
-    "tor-startos": "git+https://github.com/Start9Labs/tor-startos.git#update/040"
+    "@start9labs/start-sdk": "1.0.0",
+    "bitcoind-startos": "git+https://github.com/Start9Labs/bitcoind-startos.git#30.x",
+    "tor-startos": "git+https://github.com/Start9Labs/tor-startos.git#master"
   },
   "devDependencies": {
     "@types/node": "^22.17.1",
