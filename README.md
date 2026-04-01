@@ -134,15 +134,23 @@
 
 ## Dependencies
 
-| Dependency | Required | Purpose |
-|------------|----------|---------|
-| Bitcoin Core | **Yes** | Provides blockchain data via RPC and P2P |
+### Bitcoin Core (required)
+
+| Property | Value |
+|----------|-------|
+| Version constraint | `>= 28.3` |
+| Required state | Running |
+| Health checks | `bitcoind` |
+| Mounted volume | `main` → `/mnt/bitcoind` (read-only) |
+| Purpose | Blockchain data via RPC and P2P, cookie authentication |
 
 The service automatically:
 - Connects to Bitcoin Core RPC at `bitcoind.startos:8332`
 - Connects to Bitcoin Core P2P at `bitcoind.startos:8333`
-- Uses cookie authentication from the mounted volume
+- Uses cookie authentication from the mounted dependency volume
 - Restarts if the Bitcoin Core cookie file changes
+
+**Auto-configuration:** On install, a critical task auto-configures Bitcoin Core to disable pruning (`prune: null`), since Electrs requires an archival node.
 
 **Bitcoin Core requirements:**
 - `server=1` must be enabled (default on StartOS)
@@ -171,16 +179,19 @@ The service automatically:
 
 ## Health Checks
 
-| Check | Method | Grace Period |
-|-------|--------|--------------|
-| Electrum Server | Port 50001 listening | Default |
-| Sync Progress | Custom script | Default |
+| Check | Display | Method | Messages |
+|-------|---------|--------|----------|
+| Electrum Server | Electrum Server | Port 50001 listening | Ready: "Electrum server is ready and accepting connections" / Error: "Electrum server is unreachable" |
+| Sync Progress | Sync Progress | Prometheus metrics (`localhost:4224`) + Bitcoin RPC | See below |
 
-**Messages:**
+**Sync Progress details:**
 
-- Server ready: "Electrum server is ready and accepting connections"
-- Server error: "Electrum server is unreachable"
-- Sync: Shows progress or "loading" during initial sync
+The sync check performs multiple steps: verifies the Bitcoin cookie file, checks Bitcoin sync status via RPC, scrapes Electrs Prometheus metrics for `index_height`, and detects database compaction. Messages include:
+
+- "Bitcoin blockchain is not fully synced yet: X of Y blocks (Z%)"
+- "Catching up to blocks from bitcoind… Progress: X of Y blocks (Z%)"
+- "Finishing database compaction… This could take some hours…"
+- "Fully synced" (success)
 
 ---
 
