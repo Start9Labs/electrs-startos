@@ -16,8 +16,8 @@ export const shape = z.object({
   log_filters: z
     .enum(['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'])
     .catch('INFO'),
-  index_batch_size: z.number().int().optional().catch(10),
-  index_lookup_limit: z.number().int().optional().catch(0),
+  index_batch_size: z.number().int().optional().catch(undefined),
+  index_lookup_limit: z.number().int().optional().catch(undefined),
 })
 
 export const tomlFile = FileHelper.toml(

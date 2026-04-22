@@ -67,7 +67,12 @@
 
 **Key difference:** On StartOS, the Bitcoin Core connection is fully automatic — Electrs connects to `bitcoind.startos:8332` for RPC and `bitcoind.startos:8333` for P2P, using cookie authentication from the mounted dependency volume.
 
-**First run:** Initial indexing takes several hours depending on your hardware. The service will show "loading" status until sync completes.
+**First run:** Electrs waits for Bitcoin Core to finish its initial block download before it starts building its own address index. Expect two stages on the StartOS status card:
+
+1. `waiting` — "Waiting for Bitcoin to finish syncing" while Bitcoin Core completes IBD
+2. `loading` — "Electrs is building its address index…" while Electrs builds its RocksDB index
+
+Total time is hardware-dependent and can take many hours. The Electrum port is not served until both stages are complete.
 
 ---
 
@@ -140,9 +145,11 @@
 |----------|-------|
 | Version constraint | `>= 28.3` |
 | Required state | Running |
-| Health checks | `bitcoind` |
+| Health checks | `bitcoind`, `sync-progress` |
 | Mounted volume | `main` → `/mnt/bitcoind` (read-only) |
 | Purpose | Blockchain data via RPC and P2P, cookie authentication |
+
+The `sync-progress` health check surfaces Bitcoin Core's initial block download state directly in the Electrs dependency panel — while Bitcoin Core is still syncing, Electrs reports its bitcoind dependency as unsatisfied rather than running its own duplicate RPC poll.
 
 The service automatically:
 - Connects to Bitcoin Core RPC at `bitcoind.startos:8332`
@@ -179,19 +186,26 @@ The service automatically:
 
 ## Health Checks
 
-| Check | Display | Method | Messages |
-|-------|---------|--------|----------|
-| Electrum Server | Electrum Server | Port 50001 listening | Ready: "Electrum server is ready and accepting connections" / Error: "Electrum server is unreachable" |
-| Sync Progress | Sync Progress | Prometheus metrics (`localhost:4224`) + Bitcoin RPC | See below |
+| Check | Display | Method |
+|-------|---------|--------|
+| Electrum Server | Electrum Server | Port 50001 listening, with cookie-aware fallback |
+| Sync Progress | Sync Progress | Electrs's own Electrum RPC readiness signal |
+
+**Electrum Server details:**
+
+The daemon is considered `success` when port 50001 is listening. When it is not yet listening, Electrs is still in its bitcoind-polling loop (electrs won't bind the port until Bitcoin Core is past IBD and its P2P interface is reachable). Rather than reporting `failure`, the check inspects the mounted `/mnt/bitcoind/.cookie` file and reports:
+
+- `waiting` — "Waiting for Bitcoin to finish syncing" (cookie present → Bitcoin RPC is up)
+- `waiting` — "Waiting for Bitcoin to start" (no cookie → Bitcoin Core not yet running)
 
 **Sync Progress details:**
 
-The sync check performs multiple steps: verifies the Bitcoin cookie file, checks Bitcoin sync status via RPC, scrapes Electrs Prometheus metrics for `index_height`, and detects database compaction. Messages include:
+Sync progress is `loading` until Electrs has built its address index and is ready to serve Electrum queries. The check connects to Electrs's own Electrum RPC on `localhost:50001` (via `bash /dev/tcp`) and calls an index-requiring method. Electrs returns `{"code": -32603, "message": "unavailable index"}` until its internal `is_ready` flag flips, which happens only after both initial indexing AND the one-time post-indexing RocksDB compaction complete. No Bitcoin Core RPC or Prometheus scraping is performed. Messages:
 
-- "Bitcoin blockchain is not fully synced yet: X of Y blocks (Z%)"
-- "Catching up to blocks from bitcoind… Progress: X of Y blocks (Z%)"
-- "Finishing database compaction… This could take some hours…"
-- "Fully synced" (success)
+- `loading` — "Electrs is building its address index. This can take several hours on first run."
+- `success` — "Fully synced"
+
+Bitcoin Core's own sync state is surfaced via the `sync-progress` dependency health check (see [Dependencies](#dependencies)), not this check.
 
 ---
 
@@ -249,8 +263,10 @@ startos_managed_config:
 actions:
   - config (enabled, any)
 health_checks:
-  - port_listening: 50001
-  - sync_progress: custom script
+  - electrs_daemon: port 50001 listening, with cookie-aware waiting state
+  - sync: probes electrs Electrum RPC on localhost:50001 for `unavailable index`
+dependency_health_checks:
+  - bitcoind: [bitcoind, sync-progress]
 backup_volumes:
   - main (excludes /db)
 ```

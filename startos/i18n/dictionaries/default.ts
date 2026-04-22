@@ -5,6 +5,10 @@ const dict = {
   'Electrum Server': 1,
   'Electrum server is ready and accepting connections': 2,
   'Electrum server is unreachable': 3,
+  'Waiting for Bitcoin to finish syncing': 23,
+  'Waiting for Bitcoin to start': 24,
+  'Electrs is building its address index. This can take several hours on first run.': 25,
+  'Fully synced': 26,
   'Sync Progress': 4,
   'Main': 5,
   'The main interface for accessing electrs': 6,
@@ -24,6 +28,8 @@ const dict = {
   'Info': 20,
   'Debug': 21,
   'Trace': 22,
+  'Default': 27,
+  'no limit': 28,
 } as const
 
 export type I18nKey = keyof typeof dict

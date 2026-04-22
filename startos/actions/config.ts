@@ -1,3 +1,4 @@
+import { utils } from '@start9labs/start-sdk'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
@@ -19,27 +20,27 @@ export const inputSpec = InputSpec.of({
     description: i18n(
       'Maximum number of blocks to request from bitcoind per batch.',
     ),
-    required: true,
-    default: 10,
+    required: false,
+    default: null,
     integer: true,
     min: 1,
     max: 10000,
-    placeholder: '10',
     step: 10,
     units: i18n('blocks'),
+    footnote: `${i18n('Default')}: 10 blocks`,
   }),
   index_lookup_limit: Value.number({
     name: i18n('Index Lookup Limit'),
     description: i18n(
       "Number of transactions to lookup before returning an error, to prevent 'too popular' addresses from causing the RPC server to time out. Enter '0' for no limit.",
     ),
-    required: true,
-    default: 0,
+    required: false,
+    default: null,
     integer: true,
     min: 0,
     max: 10000,
-    placeholder: '0',
     units: i18n('transactions'),
+    footnote: `${i18n('Default')}: ${i18n('no limit')}`,
   }),
 })
 
@@ -64,5 +65,6 @@ export const config = sdk.Action.withInput(
   async ({ effects }) => tomlFile.read().once(),
 
   // the execution function
-  async ({ effects, input }) => tomlFile.merge(effects, input),
+  async ({ effects, input }) =>
+    tomlFile.merge(effects, utils.nullToUndefined(input)),
 )
