@@ -7,15 +7,15 @@ export const v_0_11_1_2 = VersionInfo.of({
   version: '0.11.1:2',
   releaseNotes: {
     en_US:
-      'Internal updates (start-sdk 1.2.0). Health checks: removed Bitcoin RPC polling — sync progress now uses electrs own readiness signal, and the daemon reports "waiting" (not "failure") while Bitcoin Core finishes its initial block download.',
+      'Internal updates (start-sdk 1.2.0). Health checks: removed Bitcoin RPC polling — sync progress now uses electrs own readiness signal, and the daemon reports "waiting" (not "failure") while Bitcoin finishes its initial block download.',
     es_ES:
-      'Actualizaciones internas (start-sdk 1.2.0). Comprobaciones de estado: se eliminó el sondeo RPC a Bitcoin — el progreso de sincronización ahora usa la señal de disponibilidad propia de electrs, y el daemon informa "en espera" (no "fallo") mientras Bitcoin Core termina su descarga inicial de bloques.',
+      'Actualizaciones internas (start-sdk 1.2.0). Comprobaciones de estado: se eliminó el sondeo RPC a Bitcoin — el progreso de sincronización ahora usa la señal de disponibilidad propia de electrs, y el daemon informa "en espera" (no "fallo") mientras Bitcoin termina su descarga inicial de bloques.',
     de_DE:
-      'Interne Aktualisierungen (start-sdk 1.2.0). Health-Checks: Bitcoin-RPC-Polling entfernt — der Sync-Fortschritt verwendet jetzt electrs\' eigenes Bereitschaftssignal, und der Daemon meldet "wartend" (nicht "Fehler"), während Bitcoin Core seinen initialen Block-Download abschließt.',
+      'Interne Aktualisierungen (start-sdk 1.2.0). Health-Checks: Bitcoin-RPC-Polling entfernt — der Sync-Fortschritt verwendet jetzt electrs\' eigenes Bereitschaftssignal, und der Daemon meldet "wartend" (nicht "Fehler"), während Bitcoin seinen initialen Block-Download abschließt.',
     pl_PL:
-      'Aktualizacje wewnętrzne (start-sdk 1.2.0). Sprawdzenia zdrowia: usunięto odpytywanie RPC Bitcoina — postęp synchronizacji używa teraz własnego sygnału gotowości electrs, a demon zgłasza "oczekiwanie" (nie "błąd"), podczas gdy Bitcoin Core kończy początkowe pobieranie bloków.',
+      'Aktualizacje wewnętrzne (start-sdk 1.2.0). Sprawdzenia zdrowia: usunięto odpytywanie RPC Bitcoina — postęp synchronizacji używa teraz własnego sygnału gotowości electrs, a demon zgłasza "oczekiwanie" (nie "błąd"), podczas gdy Bitcoin kończy początkowe pobieranie bloków.',
     fr_FR:
-      "Mises à jour internes (start-sdk 1.2.0). Vérifications d'état : suppression des appels RPC Bitcoin — la progression de la synchronisation utilise désormais le signal de disponibilité propre à electrs, et le démon indique « en attente » (et non « échec ») pendant que Bitcoin Core termine son téléchargement initial des blocs.",
+      "Mises à jour internes (start-sdk 1.2.0). Vérifications d'état : suppression des appels RPC Bitcoin — la progression de la synchronisation utilise désormais le signal de disponibilité propre à electrs, et le démon indique « en attente » (et non « échec ») pendant que Bitcoin termine son téléchargement initial des blocs.",
   },
   migrations: {
     up: async ({ effects }) => {

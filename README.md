@@ -34,21 +34,21 @@
 
 ## Image and Container Runtime
 
-| Property | Value |
-|----------|-------|
-| Image | Custom `dockerBuild` (built from source) |
-| Architectures | x86_64, aarch64 |
-| Entrypoint | `electrs` |
+| Property      | Value                                    |
+| ------------- | ---------------------------------------- |
+| Image         | Custom `dockerBuild` (built from source) |
+| Architectures | x86_64, aarch64                          |
+| Entrypoint    | `electrs`                                |
 
 ---
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose |
-|--------|-------------|---------|
-| `main` | `/data` | Configuration and index database |
-| (bitcoind dependency) | `/mnt/bitcoind` | Read-only access to Bitcoin Core data for cookie auth |
-| (assets) | `/assets` | Scripts for health checks |
+| Volume                | Mount Point     | Purpose                                          |
+| --------------------- | --------------- | ------------------------------------------------ |
+| `main`                | `/data`         | Configuration and index database                 |
+| (bitcoind dependency) | `/mnt/bitcoind` | Read-only access to Bitcoin data for cookie auth |
+| (assets)              | `/assets`       | Scripts for health checks                        |
 
 **StartOS-specific files:**
 
@@ -59,17 +59,17 @@
 
 ## Installation and First-Run Flow
 
-| Step | Upstream | StartOS |
-|------|----------|---------|
+| Step               | Upstream                                        | StartOS                        |
+| ------------------ | ----------------------------------------------- | ------------------------------ |
 | Bitcoin connection | Manual configuration (RPC address, cookie path) | Auto-configured via dependency |
-| Configuration | CLI arguments or config file | Configure action in StartOS UI |
-| Initial sync | ~6.5 hours for full blockchain | Same (depends on hardware) |
+| Configuration      | CLI arguments or config file                    | Configure action in StartOS UI |
+| Initial sync       | ~6.5 hours for full blockchain                  | Same (depends on hardware)     |
 
-**Key difference:** On StartOS, the Bitcoin Core connection is fully automatic — Electrs connects to `bitcoind.startos:8332` for RPC and `bitcoind.startos:8333` for P2P, using cookie authentication from the mounted dependency volume.
+**Key difference:** On StartOS, the Bitcoin connection is fully automatic — Electrs connects to `bitcoind.startos:8332` for RPC and `bitcoind.startos:8333` for P2P, using cookie authentication from the mounted dependency volume.
 
-**First run:** Electrs waits for Bitcoin Core to finish its initial block download before it starts building its own address index. Expect two stages on the StartOS status card:
+**First run:** Electrs waits for Bitcoin to finish its initial block download before it starts building its own address index. Expect two stages on the StartOS status card:
 
-1. `waiting` — "Waiting for Bitcoin to finish syncing" while Bitcoin Core completes IBD
+1. `waiting` — "Waiting for Bitcoin to finish syncing" while Bitcoin completes IBD
 2. `loading` — "Electrs is building its address index…" while Electrs builds its RocksDB index
 
 Total time is hardware-dependent and can take many hours. The Electrum port is not served until both stages are complete.
@@ -78,16 +78,16 @@ Total time is hardware-dependent and can take many hours. The Electrum port is n
 
 ## Configuration Management
 
-| Setting | Upstream Method | StartOS Method |
-|---------|-----------------|----------------|
-| `cookie_file` | Config/CLI | Fixed: `/mnt/bitcoind/.cookie` |
-| `daemon_rpc_addr` | Config/CLI | Fixed: `bitcoind.startos:8332` |
-| `daemon_p2p_addr` | Config/CLI | Fixed: `bitcoind.startos:8333` |
-| `network` | Config/CLI | Fixed: `bitcoin` |
-| `electrum_rpc_addr` | Config/CLI | Fixed: `0.0.0.0:50001` |
-| `log_filters` | Config/CLI | Configure action: "Log Level" |
-| `index_batch_size` | Config/CLI | Configure action: "Index Batch Size" |
-| `index_lookup_limit` | Config/CLI | Configure action: "Index Lookup Limit" |
+| Setting              | Upstream Method | StartOS Method                         |
+| -------------------- | --------------- | -------------------------------------- |
+| `cookie_file`        | Config/CLI      | Fixed: `/mnt/bitcoind/.cookie`         |
+| `daemon_rpc_addr`    | Config/CLI      | Fixed: `bitcoind.startos:8332`         |
+| `daemon_p2p_addr`    | Config/CLI      | Fixed: `bitcoind.startos:8333`         |
+| `network`            | Config/CLI      | Fixed: `bitcoin`                       |
+| `electrum_rpc_addr`  | Config/CLI      | Fixed: `0.0.0.0:50001`                 |
+| `log_filters`        | Config/CLI      | Configure action: "Log Level"          |
+| `index_batch_size`   | Config/CLI      | Configure action: "Index Batch Size"   |
+| `index_lookup_limit` | Config/CLI      | Configure action: "Index Lookup Limit" |
 
 **Configuration options NOT exposed on StartOS:**
 
@@ -101,10 +101,10 @@ Total time is hardware-dependent and can take many hours. The Electrum port is n
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose |
-|-----------|------|----------|---------|
-| Electrum | 50001 | TCP (Electrum protocol) | Wallet connections (unencrypted) |
-| Electrum SSL | 50002 | TCP+SSL | Wallet connections (encrypted) |
+| Interface    | Port  | Protocol                | Purpose                          |
+| ------------ | ----- | ----------------------- | -------------------------------- |
+| Electrum     | 50001 | TCP (Electrum protocol) | Wallet connections (unencrypted) |
+| Electrum SSL | 50002 | TCP+SSL                 | Wallet connections (encrypted)   |
 
 **Access methods (StartOS 0.4.0):**
 
@@ -119,47 +119,49 @@ Total time is hardware-dependent and can take many hours. The Electrum port is n
 
 ### Configure
 
-| Property | Value |
-|----------|-------|
-| ID | `config` |
-| Name | Configure |
-| Visibility | Enabled (always visible) |
-| Availability | Any status |
-| Purpose | Adjust Electrs settings |
+| Property     | Value                    |
+| ------------ | ------------------------ |
+| ID           | `config`                 |
+| Name         | Configure                |
+| Visibility   | Enabled (always visible) |
+| Availability | Any status               |
+| Purpose      | Adjust Electrs settings  |
 
 **Options:**
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Log Level | INFO | Verbosity: ERROR, WARN, INFO, DEBUG, TRACE |
-| Index Batch Size | 10 | Max blocks to request from Bitcoin Core per batch (1-10000) |
-| Index Lookup Limit | 0 | Max transactions to lookup before timeout (0 = unlimited) |
+| Setting            | Default | Description                                               |
+| ------------------ | ------- | --------------------------------------------------------- |
+| Log Level          | INFO    | Verbosity: ERROR, WARN, INFO, DEBUG, TRACE                |
+| Index Batch Size   | 10      | Max blocks to request from Bitcoin per batch (1-10000)    |
+| Index Lookup Limit | 0       | Max transactions to lookup before timeout (0 = unlimited) |
 
 ---
 
 ## Dependencies
 
-### Bitcoin Core (required)
+### Bitcoin (required)
 
-| Property | Value |
-|----------|-------|
-| Version constraint | `>= 28.3` |
-| Required state | Running |
-| Health checks | `bitcoind`, `sync-progress` |
-| Mounted volume | `main` → `/mnt/bitcoind` (read-only) |
-| Purpose | Blockchain data via RPC and P2P, cookie authentication |
+| Property           | Value                                                  |
+| ------------------ | ------------------------------------------------------ |
+| Version constraint | `>= 28.3`                                              |
+| Required state     | Running                                                |
+| Health checks      | `bitcoind`, `sync-progress`                            |
+| Mounted volume     | `main` → `/mnt/bitcoind` (read-only)                   |
+| Purpose            | Blockchain data via RPC and P2P, cookie authentication |
 
-The `sync-progress` health check surfaces Bitcoin Core's initial block download state directly in the Electrs dependency panel — while Bitcoin Core is still syncing, Electrs reports its bitcoind dependency as unsatisfied rather than running its own duplicate RPC poll.
+The `sync-progress` health check surfaces Bitcoin's initial block download state directly in the Electrs dependency panel — while Bitcoin is still syncing, Electrs reports its bitcoind dependency as unsatisfied rather than running its own duplicate RPC poll.
 
 The service automatically:
-- Connects to Bitcoin Core RPC at `bitcoind.startos:8332`
-- Connects to Bitcoin Core P2P at `bitcoind.startos:8333`
+
+- Connects to Bitcoin RPC at `bitcoind.startos:8332`
+- Connects to Bitcoin P2P at `bitcoind.startos:8333`
 - Uses cookie authentication from the mounted dependency volume
-- Restarts if the Bitcoin Core cookie file changes
+- Restarts if the Bitcoin cookie file changes
 
-**Auto-configuration:** On install, a critical task auto-configures Bitcoin Core to disable pruning (`prune: null`), since Electrs requires an archival node.
+**Auto-configuration:** On install, a critical task auto-configures Bitcoin to disable pruning (`prune: null`), since Electrs requires an archival node.
 
-**Bitcoin Core requirements:**
+**Bitcoin requirements:**
+
 - `server=1` must be enabled (default on StartOS)
 - `txindex=1` is NOT required (unlike some other Electrum servers)
 - Pruning must be disabled (archival node required)
@@ -186,33 +188,33 @@ The service automatically:
 
 ## Health Checks
 
-| Check | Display | Method |
-|-------|---------|--------|
+| Check           | Display         | Method                                           |
+| --------------- | --------------- | ------------------------------------------------ |
 | Electrum Server | Electrum Server | Port 50001 listening, with cookie-aware fallback |
-| Sync Progress | Sync Progress | Electrs's own Electrum RPC readiness signal |
+| Sync Progress   | Sync Progress   | Electrs's own Electrum RPC readiness signal      |
 
 **Electrum Server details:**
 
-The daemon is considered `success` when port 50001 is listening. When it is not yet listening, Electrs is still in its bitcoind-polling loop (electrs won't bind the port until Bitcoin Core is past IBD and its P2P interface is reachable). Rather than reporting `failure`, the check inspects the mounted `/mnt/bitcoind/.cookie` file and reports:
+The daemon is considered `success` when port 50001 is listening. When it is not yet listening, Electrs is still in its bitcoind-polling loop (electrs won't bind the port until Bitcoin is past IBD and its P2P interface is reachable). Rather than reporting `failure`, the check inspects the mounted `/mnt/bitcoind/.cookie` file and reports:
 
 - `waiting` — "Waiting for Bitcoin to finish syncing" (cookie present → Bitcoin RPC is up)
-- `waiting` — "Waiting for Bitcoin to start" (no cookie → Bitcoin Core not yet running)
+- `waiting` — "Waiting for Bitcoin to start" (no cookie → Bitcoin not yet running)
 
 **Sync Progress details:**
 
-Sync progress is `loading` until Electrs has built its address index and is ready to serve Electrum queries. The check connects to Electrs's own Electrum RPC on `localhost:50001` (via `bash /dev/tcp`) and calls an index-requiring method. Electrs returns `{"code": -32603, "message": "unavailable index"}` until its internal `is_ready` flag flips, which happens only after both initial indexing AND the one-time post-indexing RocksDB compaction complete. No Bitcoin Core RPC or Prometheus scraping is performed. Messages:
+Sync progress is `loading` until Electrs has built its address index and is ready to serve Electrum queries. The check connects to Electrs's own Electrum RPC on `localhost:50001` (via `bash /dev/tcp`) and calls an index-requiring method. Electrs returns `{"code": -32603, "message": "unavailable index"}` until its internal `is_ready` flag flips, which happens only after both initial indexing AND the one-time post-indexing RocksDB compaction complete. No Bitcoin RPC or Prometheus scraping is performed. Messages:
 
 - `loading` — "Electrs is building its address index. This can take several hours on first run."
 - `success` — "Fully synced"
 
-Bitcoin Core's own sync state is surfaced via the `sync-progress` dependency health check (see [Dependencies](#dependencies)), not this check.
+Bitcoin's own sync state is surfaced via the `sync-progress` dependency health check (see [Dependencies](#dependencies)), not this check.
 
 ---
 
 ## Limitations and Differences
 
 1. **Mainnet only** — network is fixed to `bitcoin`; testnet/signet not supported
-2. **Fixed Bitcoin connection** — must use the StartOS Bitcoin Core dependency; cannot connect to external Bitcoin nodes
+2. **Fixed Bitcoin connection** — must use the StartOS Bitcoin dependency; cannot connect to external Bitcoin nodes
 3. **Custom-built image** — built from source rather than using pre-built binaries
 4. **Index excluded from backups** — restoring from backup requires full re-indexing
 5. **Limited configuration** — some advanced options (server banner, timeouts) not exposed
