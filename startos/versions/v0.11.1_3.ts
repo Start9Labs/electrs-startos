@@ -3,8 +3,8 @@ import { readFile, rm } from 'fs/promises'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { LogFilters } from '../utils'
 
-export const v_0_11_1_2 = VersionInfo.of({
-  version: '0.11.1:2',
+export const v_0_11_1_3 = VersionInfo.of({
+  version: '0.11.1:3',
   releaseNotes: {
     en_US:
       'Internal updates (start-sdk 1.2.0). Health checks: removed Bitcoin RPC polling — sync progress now uses electrs own readiness signal, and the daemon reports "waiting" (not "failure") while Bitcoin finishes its initial block download.',

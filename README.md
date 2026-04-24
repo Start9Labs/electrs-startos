@@ -158,7 +158,7 @@ The service automatically:
 - Uses cookie authentication from the mounted dependency volume
 - Restarts if the Bitcoin cookie file changes
 
-**Auto-configuration:** On install, a critical task auto-configures Bitcoin to disable pruning (`prune: null`), since Electrs requires an archival node.
+**Auto-configuration:** On install, a critical task auto-configures Bitcoin to disable pruning (`prune: 0`), since Electrs requires an archival node.
 
 **Bitcoin requirements:**
 
