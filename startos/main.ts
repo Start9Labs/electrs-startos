@@ -1,6 +1,7 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
 import { access } from 'fs/promises'
+import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { port } from './utils'
@@ -10,6 +11,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * ======================== Setup (optional) ========================
    */
   console.info(i18n('Starting Electrs!'))
+
+  const store = await storeJson.read().once()
+  if (!store) throw new Error('No store')
 
   const electrsContainer = await sdk.SubContainer.of(
     effects,
@@ -113,5 +117,24 @@ printf '%s' "$line"`
         },
       },
       requires: ['electrs'],
+    })
+    .addOneshot('synced-true', {
+      subcontainer: null,
+      exec: {
+        fn: async () => {
+          if (!store.syncNotified) {
+            await sdk.notification.create(effects, {
+              level: 'success',
+              title: i18n('Sync Complete'),
+              message: i18n(
+                'Electrs has finished building its address index. The Electrum server is ready.',
+              ),
+            })
+            await storeJson.merge(effects, { syncNotified: true })
+          }
+          return null
+        },
+      },
+      requires: ['sync'],
     })
 })

@@ -30,6 +30,8 @@ const dict = {
   'Trace': 22,
   'Default': 27,
   'no limit': 28,
+  'Sync Complete': 29,
+  'Electrs has finished building its address index. The Electrum server is ready.': 30,
 } as const
 
 export type I18nKey = keyof typeof dict

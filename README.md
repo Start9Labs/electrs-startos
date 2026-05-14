@@ -207,6 +207,8 @@ Sync progress is `loading` until Electrs has built its address index and is read
 - `loading` — "Electrs is building its address index. This can take several hours on first run."
 - `success` — "Fully synced"
 
+When sync first reaches `success` after install, a **Sync Complete** notification is posted to the StartOS notifications panel (fires once per install).
+
 Bitcoin's own sync state is surfaced via the `sync-progress` dependency health check (see [Dependencies](#dependencies)), not this check.
 
 ---
