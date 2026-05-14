@@ -31,6 +31,8 @@ export default {
     26: 'Totalmente sincronizado',
     27: 'Predeterminado',
     28: 'sin límite',
+    29: 'Sincronización completa',
+    30: 'Electrs ha terminado de construir su índice de direcciones. El servidor Electrum está listo.',
   },
   de_DE: {
     0: 'Starte Electrs!',
@@ -62,6 +64,8 @@ export default {
     26: 'Vollständig synchronisiert',
     27: 'Standard',
     28: 'kein Limit',
+    29: 'Synchronisierung abgeschlossen',
+    30: 'Electrs hat den Adressindex fertiggestellt. Der Electrum-Server ist bereit.',
   },
   pl_PL: {
     0: 'Uruchamianie Electrs!',
@@ -93,6 +97,8 @@ export default {
     26: 'W pełni zsynchronizowano',
     27: 'Domyślnie',
     28: 'bez limitu',
+    29: 'Synchronizacja zakończona',
+    30: 'Electrs zakończył budowanie indeksu adresów. Serwer Electrum jest gotowy.',
   },
   fr_FR: {
     0: "Démarrage d'Electrs !",
@@ -124,5 +130,7 @@ export default {
     26: 'Entièrement synchronisé',
     27: 'Par défaut',
     28: 'aucune limite',
+    29: 'Synchronisation terminée',
+    30: "Electrs a terminé de construire son index d'adresses. Le serveur Electrum est prêt.",
   },
 } satisfies Record<string, LangDict>
