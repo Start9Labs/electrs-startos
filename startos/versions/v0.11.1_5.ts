@@ -3,24 +3,14 @@ import { readFile, rm } from 'fs/promises'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { LogFilters } from '../utils'
 
-export const v_0_11_1_4 = VersionInfo.of({
-  version: '0.11.1:4',
+export const v_0_11_1_5 = VersionInfo.of({
+  version: '0.11.1:5',
   releaseNotes: {
-    en_US: `- Adds a Sync Complete notification when initial sync finishes
-- Adds an in-app Instructions tab
-- Internal updates (start-sdk 1.5.1)`,
-    es_ES: `- Añade una notificación de Sincronización Completa cuando finaliza la sincronización inicial
-- Añade una pestaña de Instrucciones en la app
-- Actualizaciones internas (start-sdk 1.5.1)`,
-    de_DE: `- Fügt eine Sync-Abschluss-Benachrichtigung hinzu, wenn die initiale Synchronisation abgeschlossen ist
-- Fügt eine In-App-Anleitungs-Registerkarte hinzu
-- Interne Aktualisierungen (start-sdk 1.5.1)`,
-    pl_PL: `- Dodaje powiadomienie o zakończeniu początkowej synchronizacji
-- Dodaje zakładkę Instrukcje w aplikacji
-- Aktualizacje wewnętrzne (start-sdk 1.5.1)`,
-    fr_FR: `- Ajoute une notification de Synchronisation terminée à la fin de la synchronisation initiale
-- Ajoute un onglet Instructions dans l'application
-- Mises à jour internes (start-sdk 1.5.1)`,
+    en_US: 'Internal updates (start-sdk 1.5.2).',
+    es_ES: 'Actualizaciones internas (start-sdk 1.5.2).',
+    de_DE: 'Interne Aktualisierungen (start-sdk 1.5.2).',
+    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.5.2).',
+    fr_FR: 'Mises à jour internes (start-sdk 1.5.2).',
   },
   migrations: {
     up: async ({ effects }) => {

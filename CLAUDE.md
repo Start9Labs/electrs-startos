@@ -1,3 +1,3 @@
-## How the upstream version is pulled
-- Git submodule `electrs/` → checkout new tag
-- Image is `dockerBuild` from root (no dockerTag to update)
+# CLAUDE.md
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the doc map and contribution workflow.
