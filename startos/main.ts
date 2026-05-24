@@ -1,7 +1,7 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
 import { access } from 'fs/promises'
-import { storeJson } from './fileModels/store.json'
+import { syncNotifiedFile } from './fileModels/syncNotified.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { port } from './utils'
@@ -12,8 +12,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
    */
   console.info(i18n('Starting Electrs!'))
 
-  const store = await storeJson.read().once()
-  if (!store) throw new Error('No store')
+  let notified = (await syncNotifiedFile.read().once())?.notified ?? false
 
   const electrsContainer = await sdk.SubContainer.of(
     effects,
@@ -122,16 +121,20 @@ printf '%s' "$line"`
       subcontainer: null,
       exec: {
         fn: async () => {
-          if (!store.syncNotified) {
-            await sdk.notification.create(effects, {
-              level: 'success',
-              title: i18n('Sync Complete'),
-              message: i18n(
-                'Electrs has finished building its address index. The Electrum server is ready.',
-              ),
-            })
-            await storeJson.merge(effects, { syncNotified: true })
-          }
+          // The SDK re-fires this oneshot every time the sync health check
+          // dips out of success and recovers (TCP probe blips). The closure
+          // flag is the source of truth within a main lifecycle; the on-disk
+          // flag re-seeds it on next startup.
+          if (notified) return null
+          await sdk.notification.create(effects, {
+            level: 'success',
+            title: i18n('Sync Complete'),
+            message: i18n(
+              'Electrs has finished building its address index. The Electrum server is ready.',
+            ),
+          })
+          await syncNotifiedFile.write(effects, { notified: true })
+          notified = true
           return null
         },
       },
