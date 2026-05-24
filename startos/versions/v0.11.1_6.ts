@@ -3,14 +3,19 @@ import { readFile, rm } from 'fs/promises'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { LogFilters } from '../utils'
 
-export const v_0_11_1_5 = VersionInfo.of({
-  version: '0.11.1:5',
+export const v_0_11_1_6 = VersionInfo.of({
+  version: '0.11.1:6',
   releaseNotes: {
-    en_US: 'Internal updates (start-sdk 1.5.2).',
-    es_ES: 'Actualizaciones internas (start-sdk 1.5.2).',
-    de_DE: 'Interne Aktualisierungen (start-sdk 1.5.2).',
-    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.5.2).',
-    fr_FR: 'Mises à jour internes (start-sdk 1.5.2).',
+    en_US:
+      'Fixes repeated "Sync Complete" notifications when electrs briefly flickered out of and back into the synced state.',
+    es_ES:
+      'Corrige notificaciones repetidas de "Sincronización completa" cuando electrs salía y volvía brevemente al estado sincronizado.',
+    de_DE:
+      'Behebt wiederholte „Sync Complete"-Benachrichtigungen, wenn electrs kurzzeitig aus dem synchronisierten Zustand fiel und wieder hineinkam.',
+    pl_PL:
+      'Naprawia powtarzające się powiadomienia „Sync Complete", gdy electrs chwilowo wypadał ze stanu zsynchronizowanego i do niego wracał.',
+    fr_FR:
+      "Corrige les notifications « Sync Complete » répétées lorsque electrs sortait brièvement de l'état synchronisé puis y revenait.",
   },
   migrations: {
     up: async ({ effects }) => {
