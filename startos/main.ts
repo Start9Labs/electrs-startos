@@ -12,7 +12,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
    */
   console.info(i18n('Starting Electrs!'))
 
-  let notified = (await storeJson.read().once())?.notified ?? false
+  let syncNotified = (await storeJson.read().once())?.syncNotified ?? false
 
   const electrsContainer = await sdk.SubContainer.of(
     effects,
@@ -125,7 +125,7 @@ printf '%s' "$line"`
           // dips out of success and recovers (TCP probe blips). The closure
           // flag is the source of truth within a main lifecycle; the on-disk
           // flag re-seeds it on next startup.
-          if (notified) return null
+          if (syncNotified) return null
           await sdk.notification.create(effects, {
             level: 'success',
             title: i18n('Sync Complete'),
@@ -133,8 +133,8 @@ printf '%s' "$line"`
               'Electrs has finished building its address index. The Electrum server is ready.',
             ),
           })
-          await storeJson.merge(effects, { notified: true })
-          notified = true
+          await storeJson.merge(effects, { syncNotified: true })
+          syncNotified = true
           return null
         },
       },

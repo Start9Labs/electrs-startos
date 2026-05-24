@@ -7,6 +7,6 @@ export const storeJson = FileHelper.json(
     subpath: '/store.json',
   },
   z.object({
-    notified: z.boolean().catch(false),
+    syncNotified: z.boolean().catch(false),
   }),
 )
