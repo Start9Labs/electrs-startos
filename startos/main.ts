@@ -12,7 +12,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
    */
   console.info(i18n('Starting Electrs!'))
 
-  let syncNotified = (await storeJson.read().once())?.syncNotified ?? false
+  let syncNotified =
+    (await storeJson.read((s) => s.syncNotified).once()) ?? false
 
   const electrsContainer = await sdk.SubContainer.of(
     effects,
