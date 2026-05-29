@@ -1,6 +1,5 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
-import { access } from 'fs/promises'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
@@ -50,6 +49,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ready: {
         display: i18n('Electrum Server'),
         fn: async () => {
+          // checkPortListening reads /proc/net/tcp* — it succeeds as soon as
+          // electrs binds the Electrum port, which it does at startup BEFORE
+          // blocking on the bitcoind IBD wait (electrs/src/server.rs binds the
+          // listener before Rpc::new connects to bitcoind). So the port is open
+          // throughout that wait; a not-listening result just means electrs hasn't
+          // bound the socket yet — it's still starting, not blocked on bitcoind.
           const result = await sdk.healthCheck.checkPortListening(
             effects,
             port,
@@ -57,32 +62,16 @@ export const main = sdk.setupMain(async ({ effects }) => {
               successMessage: i18n(
                 'Electrum server is ready and accepting connections',
               ),
-              errorMessage: i18n('Electrum server is unreachable'),
+              errorMessage: i18n('Electrum server is starting'),
             },
           )
 
-          if (result.result === 'success') return result
-
-          // Port not listening — electrs is stuck in its bitcoind polling loop
-          // until bitcoind finishes IBD. Report this as "waiting" so users see
-          // an accurate status instead of a scary "unreachable" failure.
-          const cookieExists = await access(
-            `${electrsContainer.rootfs}/mnt/bitcoind/.cookie`,
-          )
-            .then(() => true)
-            .catch(() => false)
-
-          if (cookieExists) {
-            return {
-              result: 'waiting',
-              message: i18n('Waiting for Bitcoin to finish syncing'),
-            }
-          }
-
-          return {
-            result: 'waiting',
-            message: i18n('Waiting for Bitcoin to start'),
-          }
+          return result.result === 'success'
+            ? result
+            : {
+                result: 'starting',
+                message: i18n('Electrum server is starting'),
+              }
         },
       },
       requires: [],
@@ -91,29 +80,38 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ready: {
         display: i18n('Sync Progress'),
         fn: async () => {
-          // Probe electrs's Electrum RPC with an index-requiring method.
-          // Until the index is ready, electrs returns {"code": -32603, "message": "unavailable index"}.
-          const probe = `exec 3<>/dev/tcp/127.0.0.1/${port}
+          // Probe electrs's Electrum RPC with server.banner. Until the index is
+          // ready, electrs replies with {"code": -32603, "message": "unavailable
+          // index"} — but far more often during a build it does not reply at all
+          // within the timeout, because its sync loop indexes a whole ~2000-block
+          // batch (~2 min each) before servicing any RPC and only answers between
+          // batches (electrs/src/server.rs `while server_rx.is_empty()`).
+          //
+          // So sync must be confirmed POSITIVELY — only a real JSON-RPC `result`
+          // counts as synced. A read timeout must fail the script (`|| exit`),
+          // otherwise the trailing printf's exit code masks it and an empty reply
+          // is misread as synced, reporting "Fully synced" all through the build.
+          const probe = `exec 3<>/dev/tcp/127.0.0.1/${port} || exit 1
 printf '%s\\n' '{"jsonrpc":"2.0","id":1,"method":"server.banner","params":[]}' >&3
-read -t 10 line <&3
-exec 3<&-
+IFS= read -t 10 -r line <&3 || exit 2
+exec 3<&- 2>/dev/null
 printf '%s' "$line"`
 
           const res = await electrsContainer.exec(['bash', '-c', probe], {})
 
           if (
-            res.exitCode !== 0 ||
-            res.stdout.toString().includes('unavailable index')
+            res.exitCode === 0 &&
+            res.stdout.toString().includes('"result"')
           ) {
-            return {
-              message: i18n(
-                'Electrs is building its address index. This can take several hours on first run.',
-              ),
-              result: 'loading',
-            }
+            return { message: i18n('Fully synced'), result: 'success' }
           }
 
-          return { message: i18n('Fully synced'), result: 'success' }
+          return {
+            message: i18n(
+              'Electrs is building its address index. This can take several hours on first run.',
+            ),
+            result: 'loading',
+          }
         },
       },
       requires: ['electrs'],

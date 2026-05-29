@@ -3,19 +3,19 @@ import { readFile, rm } from 'fs/promises'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { LogFilters } from '../utils'
 
-export const v_0_11_1_6 = VersionInfo.of({
-  version: '0.11.1:6',
+export const current = VersionInfo.of({
+  version: '0.11.1:7',
   releaseNotes: {
-    en_US:
-      'Fixes repeated "Sync Complete" notifications when electrs briefly flickered out of and back into the synced state.',
-    es_ES:
-      'Corrige notificaciones repetidas de "Sincronización completa" cuando electrs salía y volvía brevemente al estado sincronizado.',
-    de_DE:
-      'Behebt wiederholte „Sync Complete"-Benachrichtigungen, wenn electrs kurzzeitig aus dem synchronisierten Zustand fiel und wieder hineinkam.',
-    pl_PL:
-      'Naprawia powtarzające się powiadomienia „Sync Complete", gdy electrs chwilowo wypadał ze stanu zsynchronizowanego i do niego wracał.',
-    fr_FR:
-      "Corrige les notifications « Sync Complete » répétées lorsque electrs sortait brièvement de l'état synchronisé puis y revenait.",
+    en_US: `- Fixes the sync status falsely reporting "Fully synced" while the address index was still building.
+- Shows an accurate Electrum server status during startup.`,
+    es_ES: `- Corrige el estado de sincronización que indicaba falsamente "Totalmente sincronizado" mientras aún se construía el índice de direcciones.
+- Muestra un estado preciso del servidor Electrum durante el inicio.`,
+    de_DE: `- Behebt die Synchronisierungsanzeige, die fälschlicherweise „Vollständig synchronisiert" meldete, während der Adressindex noch aufgebaut wurde.
+- Zeigt während des Starts einen korrekten Status des Electrum-Servers an.`,
+    pl_PL: `- Naprawia status synchronizacji, który błędnie pokazywał „W pełni zsynchronizowano", gdy indeks adresów był jeszcze budowany.
+- Pokazuje dokładny status serwera Electrum podczas uruchamiania.`,
+    fr_FR: `- Corrige l'état de synchronisation indiquant à tort « Entièrement synchronisé » alors que l'index d'adresses était encore en construction.
+- Affiche un état précis du serveur Electrum au démarrage.`,
   },
   migrations: {
     up: async ({ effects }) => {
