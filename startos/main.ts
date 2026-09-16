@@ -60,8 +60,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   return sdk.Daemons.of(effects)
     .addOneshot('tw-reuse', {
       subcontainer: electrsContainer,
-      // bindex fetches blocks on ten threads through a three-connection pool;
-      // off loopback nothing reuses the TIME_WAIT ports and they run out in ~40 s.
+      // Prevents bindex's bridge traffic from exhausting ephemeral ports.
       exec: {
         command: ['sh', '-c', 'echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse'],
       },
