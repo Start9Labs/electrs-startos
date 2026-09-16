@@ -47,6 +47,8 @@ One image, built here from upstream source.
 | ------------ | ---------------------------------------- |
 | `electrs`    | The only daemon — the one to `attach` to |
 
+A `tw-reuse` oneshot runs first and sets `net.ipv4.tcp_tw_reuse=1` in the container's network namespace. electrs fetches blocks from Bitcoin's REST API on ten threads through a pool that keeps three connections, so it opens a fresh connection for most blocks; upstream talks to loopback, where the kernel reuses TIME_WAIT ports, but over the bridge nothing does and the ephemeral range is exhausted within a minute of indexing (`EADDRNOTAVAIL`, then `EADDRINUSE` on the Electrum port as it is handed out as a source port). The sysctl is per-namespace and touches only this container's outbound connections.
+
 ## Volume and Data Layout
 
 One volume, plus a read-only view of Bitcoin's.

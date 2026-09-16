@@ -58,6 +58,15 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * ======================== Daemons ========================
    */
   return sdk.Daemons.of(effects)
+    .addOneshot('tw-reuse', {
+      subcontainer: electrsContainer,
+      // bindex fetches blocks on ten threads through a three-connection pool;
+      // off loopback nothing reuses the TIME_WAIT ports and they run out in ~40 s.
+      exec: {
+        command: ['sh', '-c', 'echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse'],
+      },
+      requires: [],
+    })
     .addDaemon('electrs', {
       subcontainer: electrsContainer,
       exec: { command: ['electrs'] },
@@ -89,7 +98,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               }
         },
       },
-      requires: [],
+      requires: ['tw-reuse'],
     })
     .addHealthCheck('sync', {
       ready: {
