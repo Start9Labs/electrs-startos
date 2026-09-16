@@ -4,7 +4,7 @@ import { tomlFile } from './fileModels/electrs.toml'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { bitcoindBridge, port } from './utils'
+import { bitcoindRpc, port } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   /**
@@ -16,16 +16,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
     (await storeJson.read((s) => s.syncNotified).once()) ?? false
   let everSynced = (await storeJson.read((s) => s.everSynced).once()) ?? false
 
-  // bitcoind's RPC + P2P over the LXC bridge, written into electrs.toml before
-  // the daemon reads it. Resolved reactively (see bitcoindBridge): the bridge
-  // address changes only on bitcoind install / uninstall / port-change, so main
-  // re-fires and restarts electrs to heal on those — and never on a plain
-  // bitcoind update. While bitcoind is absent each resolves null and we omit the
-  // field, letting electrs fail to connect until the .const() heals it in.
-  const bitcoind = await bitcoindBridge(effects)
+  // bitcoind's direct RPC/REST address is resolved reactively over the LXC
+  // bridge. While bitcoind is absent it resolves null and the field stays
+  // absent; main restarts and writes the address when bitcoind appears.
+  const rpc = await bitcoindRpc(effects)
   await tomlFile.merge(effects, {
-    ...(bitcoind.rpc && { daemon_rpc_addr: bitcoind.rpc }),
-    ...(bitcoind.p2p && { daemon_p2p_addr: bitcoind.p2p }),
+    ...(rpc && { daemon_rpc_addr: rpc }),
   })
 
   const electrsContainer = sdk.SubContainer.of(
@@ -62,6 +58,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * ======================== Daemons ========================
    */
   return sdk.Daemons.of(effects)
+    .addOneshot('tw-reuse', {
+      subcontainer: electrsContainer,
+      // Workaround for bindex opening a connection per block; remove per #89.
+      exec: {
+        command: ['sh', '-c', 'echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse'],
+      },
+      requires: [],
+    })
     .addDaemon('electrs', {
       subcontainer: electrsContainer,
       exec: { command: ['electrs'] },
@@ -93,53 +97,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
               }
         },
       },
-      requires: [],
+      requires: ['tw-reuse'],
     })
     .addHealthCheck('sync', {
       ready: {
         display: i18n('Sync Progress'),
         fn: async () => {
-          // Probe electrs's Electrum RPC with server.banner. Until the index is
-          // ready, electrs replies with {"code": -32603, "message": "unavailable
-          // index"} — but far more often during a build it does not reply at all
-          // within the timeout, because its sync loop indexes a whole ~2000-block
-          // batch (~2 min each) before servicing any RPC and only answers between
-          // batches (electrs/src/server.rs `while server_rx.is_empty()`).
-          //
-          // So sync must be confirmed POSITIVELY — only a real JSON-RPC `result`
-          // counts as synced. A read timeout must fail the script (`|| exit`),
-          // otherwise the trailing printf's exit code masks it and an empty reply
-          // is misread as synced, reporting "Fully synced" all through the build.
-          const probe = `exec 3<>/dev/tcp/127.0.0.1/${port} || exit 1
-printf '%s\\n' '{"jsonrpc":"2.0","id":1,"method":"server.banner","params":[]}' >&3
-IFS= read -t 10 -r line <&3 || exit 2
-exec 3<&- 2>/dev/null
-printf '%s' "$line"`
-
-          // Before the first success a non-answer is the norm, so one attempt
-          // says all it can. Afterwards it is surprising enough to be worth
-          // re-asking: on modest hardware indexing a single block, or the
-          // RocksDB compaction behind it, blocks the RPC loop past the read
-          // timeout, and one such blip is not evidence of a sync regression.
-          for (let attempt = everSynced ? 3 : 1; attempt > 0; attempt--) {
-            const res = await electrsContainer.exec(['bash', '-c', probe], {})
-
-            if (
-              res.exitCode === 0 &&
-              res.stdout.toString().includes('"result"')
-            ) {
-              if (!everSynced) {
-                await storeJson.merge(effects, { everSynced: true })
-                everSynced = true
-              }
-              return { message: i18n('Fully synced'), result: 'success' }
-            }
-          }
-
-          // A built index is never rebuilt, so past the first success the
-          // build message would promise a fully-synced user hours of work
-          // that is not happening — and send them to reindex a good index.
-          return {
+          const unavailable = () => ({
             message: everSynced
               ? i18n(
                   'Electrs is not responding. It is likely busy indexing; this usually clears on its own.',
@@ -147,8 +111,85 @@ printf '%s' "$line"`
               : i18n(
                   'Electrs is building its address index. This can take several hours on first run.',
                 ),
-            result: 'loading',
+            result: 'loading' as const,
+          })
+
+          if (!rpc) return unavailable()
+
+          const chainInfo = await electrsContainer.exec([
+            'curl',
+            '--fail',
+            '--max-time',
+            '10',
+            '--silent',
+            '--show-error',
+            `http://${rpc}/rest/chaininfo.json`,
+          ])
+          if (chainInfo.exitCode !== 0) return unavailable()
+
+          let bitcoinHeight: number
+          try {
+            const parsed = JSON.parse(chainInfo.stdout.toString()) as {
+              blocks?: unknown
+            }
+            if (
+              typeof parsed.blocks !== 'number' ||
+              !Number.isSafeInteger(parsed.blocks) ||
+              parsed.blocks < 0
+            ) {
+              return unavailable()
+            }
+            bitcoinHeight = parsed.blocks
+          } catch {
+            return unavailable()
           }
+
+          // block.header fails safely before the first batch; headers.subscribe
+          // unwraps an empty tip and would crash electrs in that window.
+          const probe = `exec 3<>/dev/tcp/127.0.0.1/${port} || exit 1
+printf '%s\\n' '{"jsonrpc":"2.0","id":1,"method":"blockchain.block.header","params":[0]}' >&3
+IFS= read -t 10 -r line <&3 || exit 2
+case "$line" in *'"result"'*) ;; *) printf '%s' "$line"; exit 0;; esac
+printf '%s\\n' '{"jsonrpc":"2.0","id":2,"method":"blockchain.headers.subscribe","params":[]}' >&3
+IFS= read -t 10 -r line <&3 || exit 2
+printf '%s' "$line"`
+
+          for (let attempt = everSynced ? 3 : 1; attempt > 0; attempt--) {
+            const res = await electrsContainer.exec(['bash', '-c', probe], {})
+            if (res.exitCode !== 0) continue
+
+            try {
+              const parsed = JSON.parse(res.stdout.toString()) as {
+                result?: { height?: unknown }
+              }
+              const indexedHeight = parsed.result?.height
+              if (
+                typeof indexedHeight !== 'number' ||
+                !Number.isSafeInteger(indexedHeight) ||
+                indexedHeight < 0
+              ) {
+                continue
+              }
+
+              if (indexedHeight >= bitcoinHeight - 1) {
+                if (!everSynced) {
+                  await storeJson.merge(effects, { everSynced: true })
+                  everSynced = true
+                }
+                return { message: i18n('Fully synced'), result: 'success' }
+              }
+
+              return {
+                message: i18n(
+                  'Electrs has indexed through block ${indexed}; Bitcoin is at block ${tip}.',
+                  { indexed: indexedHeight, tip: bitcoinHeight },
+                ),
+                result: 'loading' as const,
+              }
+            } catch {}
+          }
+
+          return unavailable()
         },
       },
       requires: ['electrs'],

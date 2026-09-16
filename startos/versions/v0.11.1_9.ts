@@ -23,8 +23,6 @@ export const v_0_11_1_9 = VersionInfo.of({
       const configYaml:
         | {
             'log-filters': LogFilters
-            'index-batch-size': number
-            'index-lookup-limit': number
           }
         | undefined = await readFile(
         '/media/startos/volumes/main/start9/config.yaml',
@@ -32,15 +30,13 @@ export const v_0_11_1_9 = VersionInfo.of({
       ).then(YAML.parse, () => undefined)
 
       if (configYaml) {
-        // daemon_rpc_addr/daemon_p2p_addr are owned by main.ts (resolved bridge
-        // addresses); omit them here so no placeholder/legacy name is persisted.
+        // daemon_rpc_addr is owned by main.ts; omit it here so no
+        // placeholder or legacy name is persisted.
         await tomlFile.merge(effects, {
           cookie_file: '/mnt/bitcoind/.cookie',
           electrum_rpc_addr: '0.0.0.0:50001',
           network: 'bitcoin',
           log_filters: configYaml['log-filters'],
-          index_batch_size: configYaml['index-batch-size'],
-          index_lookup_limit: configYaml['index-lookup-limit'],
         })
 
         // remove old start9 dir

@@ -9,7 +9,7 @@
 > upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[electrs](https://github.com/romanz/electrs/) is an Electrum server: it builds an address index over your own Bitcoin node so wallets can query their history without asking anyone else. This package wires it to that node over the internal bridge, serves it over TLS, and reports the one thing upstream cannot — how far through its index it has got.
+[electrs](https://github.com/romanz/electrs/) is an Electrum server: it builds an address index over your own Bitcoin node so wallets can query their history without asking anyone else. This package wires it to that node's REST API over the internal bridge, serves it over TLS, and reports the one thing upstream cannot — how far through its index it has got.
 
 - **Upstream repo:** <https://github.com/romanz/electrs/>
 - **Wrapper repo:** <https://github.com/Start9Labs/electrs-startos>
@@ -47,6 +47,8 @@ One image, built here from upstream source.
 | ------------ | ---------------------------------------- |
 | `electrs`    | The only daemon — the one to `attach` to |
 
+A `tw-reuse` oneshot runs first and sets `net.ipv4.tcp_tw_reuse=1` in the container's network namespace. electrs fetches blocks from Bitcoin's REST API on ten threads through a pool that keeps three connections, so it opens a fresh connection for most blocks; upstream talks to loopback, where the kernel reuses TIME_WAIT ports, but over the bridge nothing does and the ephemeral range is exhausted within a minute of indexing (`EADDRNOTAVAIL`, then `EADDRINUSE` on the Electrum port as it is handed out as a source port). The sysctl is per-namespace and touches only this container's outbound connections. It is a workaround for an upstream pool-sizing bug, tracked for removal in #89.
+
 ## Volume and Data Layout
 
 One volume, plus a read-only view of Bitcoin's.
@@ -70,8 +72,8 @@ Two models, and most of the config file is pinned rather than configurable.
 Its fields fall into three groups:
 
 - **Pinned.** The cookie path, the network, and the Electrum bind address are `z.literal(...).catch(...)`, so a changed value is **repaired on read** rather than merely overwritten. The auth field is pinned to _undefined_ for a specific reason: electrs exits outright if both an auth value and a cookie file are set.
-- **Resolved at start.** The Bitcoin RPC and P2P addresses are written by `main` from the live bridge addresses. **When Bitcoin is absent they are omitted rather than defaulted**, so electrs fails visibly and the reactive read heals it in with one restart when Bitcoin appears.
-- **User-owned via the action.** The log level and the two indexing limits.
+- **Resolved at start.** The Bitcoin RPC address is written by `main` from the live bridge address. **When Bitcoin is absent it is omitted rather than defaulted**, so electrs fails visibly and the reactive read heals it in with one restart when Bitcoin appears.
+- **User-owned via the action.** The log level.
 
 Every other upstream option — the database directory, the block-download wait, the RPC timeout, the server banner — is fixed or not exposed.
 
@@ -89,7 +91,7 @@ One, and it is required.
 
 **Bitcoin must not be pruned**, and a recurring task enforces it: electrs needs an archival node. It does **not** need Bitcoin's transaction index, unlike some other Electrum servers.
 
-**Two addresses are resolved, and the P2P one is not the obvious host.** It resolves Bitcoin's _whitelisted_ peer listener, not the ordinary one. electrs fetches whole blocks over P2P — for the index, and again for any history query on a scripthash nothing has subscribed to — and on the ordinary listener that traffic earns no permissions: Bitcoin may evict the connection to seat another peer, or cut it off under its upload limit. **electrs does not reconnect its P2P link; it exits.** The whitelisted listener is exempt from both.
+**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires. The dependency floor keeps incompatible Bitcoin releases from satisfying the package.
 
 **The service also restarts when Bitcoin's cookie changes**, watched directly on the mounted file. An absent cookie means Bitcoin is down, and is deliberately not treated as a change.
 
@@ -115,9 +117,7 @@ The scheme override is what renders an address as `ssl://host:port`; without it 
 
 Install seeds the config and nothing else. There is no credential and no task on this service.
 
-What governs the first run is Bitcoin: electrs cannot index until Bitcoin has finished its own sync, and the dependency's sync check is what holds it there. Once Bitcoin is ready, electrs begins building its address index, which **takes hours on first run** and is the longest thing this package does.
-
-**The index is built once and never rebuilt.** That is worth knowing because the two states look similar from outside — see [Health Checks](#health-checks).
+What governs the first run is Bitcoin: electrs cannot index until Bitcoin has finished its own sync, and the dependency's sync check is what holds it there. Once Bitcoin is ready, electrs begins building its address index, which **takes hours on first run** and is the longest thing this package does. An update that changes the index format rebuilds it too; the update to the current format requires at least 120 GB of free space.
 
 A notification is sent when the index first completes, so the wait does not have to be watched.
 
@@ -127,12 +127,10 @@ One action.
 
 ### Configure
 
-Sets the log level and two indexing limits.
+Sets the log level in `electrs.toml`.
 
-- **What it changes:** three fields in `electrs.toml`.
 - **Cost:** applies on restart.
 - **Repeat safety:** idempotent.
-- **The indexing limits are the ones with consequences:** the batch size trades memory against indexing speed, and the lookup limit bounds how much work a single history query may do. Neither needs changing for normal use.
 
 ## Tasks
 
@@ -148,18 +146,16 @@ It is declared **recurring**, so re-enabling pruning brings it back. The user se
 
 Two checks, and the second one is the interesting one.
 
-| Check     | Displayed as      | Method                          |
-| --------- | ----------------- | ------------------------------- |
-| `electrs` | "Electrum Server" | The Electrum port is listening  |
-| `sync`    | "Sync Progress"   | A real Electrum query, answered |
+| Check     | Displayed as      | Method                                     |
+| --------- | ----------------- | ------------------------------------------ |
+| `electrs` | "Electrum Server" | The Electrum port is listening             |
+| `sync`    | "Sync Progress"   | Electrs's indexed tip versus Bitcoin's tip |
 
 **"Electrum Server" going green does not mean electrs is usable.** electrs binds its listener _before_ it connects to Bitcoin, so the port is open throughout the wait for Bitcoin's sync and throughout the index build. A not-listening result therefore means electrs has not started yet — not that it is blocked. The check reports `starting` rather than failure for exactly that reason.
 
-**"Sync Progress" is confirmed positively, and that is not a stylistic choice.** During an index build electrs processes a whole batch of blocks — minutes at a time — before servicing any request, so it very often does not answer at all rather than answering "not ready". The check therefore counts only a real reply as synced, and treats a timeout as not-synced. Reading it the other way round reports "Fully synced" throughout the entire build.
+**"Sync Progress" compares chain heights.** Bitcoin's tip comes from its REST `chaininfo`; electrs's indexed tip comes from `blockchain.headers.subscribe`. The check reports success only when electrs is no more than one block behind. While electrs can answer, the loading message shows both heights.
 
-**It also retries only after the first success.** Before then a non-answer is the norm and one attempt says all it can. Afterwards a non-answer is surprising enough to be worth re-asking, because on modest hardware indexing a single block — or the database compaction behind it — can block the query loop past the timeout, and one such blip is not a sync regression.
-
-That distinction drives the message, too. Before the first success it says the index is building and warns that it takes hours. Afterwards it says electrs is busy and this usually clears on its own — because **a built index is never rebuilt**, and telling a fully-synced user their index is rebuilding would send them to reindex a perfectly good one.
+During an index build electrs processes a whole batch before servicing requests, so a probe can time out between progress updates. The check retries a timeout only after the index has completed once, when a long non-answer is surprising enough to recheck. Before the first completion it reports that the index is building; afterwards it reports a busy indexer rather than suggesting a routine restart discarded the index.
 
 ## Backups and Restore
 
@@ -176,8 +172,7 @@ Backing the index up would not be much better than rebuilding it: it is large, i
 3. **Mainnet only.** The network is pinned in the config.
 4. **Most of upstream's configuration is not exposed** — the database directory, the RPC timeout, the server banner, and the block-download wait are all fixed or absent.
 5. **The Electrum desktop wallet needs a client-side certificate step**; other wallets do not.
-6. **electrs does not reconnect its P2P link.** That is why the whitelisted Bitcoin listener is used rather than the ordinary one.
-7. **The external port is assigned once and never changes** for an existing binding, so it may not be the preferred one.
+6. **The external port is assigned once and never changes** for an existing binding, so it may not be the preferred one.
 
 ---
 
@@ -207,5 +202,5 @@ tasks:
   - { action: 'bitcoind:autoconfig', severity: critical } # on Bitcoin's page, recurring
 health_checks:
   - electrs # displayed "Electrum Server"; binds before it connects to Bitcoin
-  - sync # displayed "Sync Progress"; positive confirmation only
+  - sync # displayed "Sync Progress"; compares indexed and Bitcoin tips
 ```

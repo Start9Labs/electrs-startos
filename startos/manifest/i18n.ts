@@ -1,9 +1,14 @@
 export const bitcoindDescription = {
-  en_US: 'Used to subscribe to new block events.',
-  es_ES: 'Se utiliza para suscribirse a eventos de nuevos bloques.',
-  de_DE: 'Wird verwendet, um neue Block-Ereignisse zu abonnieren.',
-  pl_PL: 'Używany do subskrybowania wydarzeń nowych bloków.',
-  fr_FR: "Utilisé pour s'abonner aux événements de nouveaux blocs.",
+  en_US:
+    'Provides blocks and spent outputs over REST, plus mempool data over RPC.',
+  es_ES:
+    'Proporciona bloques y salidas gastadas mediante REST, además de datos del mempool mediante RPC.',
+  de_DE:
+    'Stellt Blöcke und ausgegebene Outputs über REST sowie Mempool-Daten über RPC bereit.',
+  pl_PL:
+    'Udostępnia bloki i wydane wyjścia przez REST oraz dane mempoola przez RPC.',
+  fr_FR:
+    'Fournit les blocs et les sorties dépensées via REST, ainsi que les données du mempool via RPC.',
 }
 
 export const short = {
