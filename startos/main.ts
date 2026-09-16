@@ -60,7 +60,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   return sdk.Daemons.of(effects)
     .addOneshot('tw-reuse', {
       subcontainer: electrsContainer,
-      // Prevents bindex's bridge traffic from exhausting ephemeral ports.
+      // Workaround for bindex opening a connection per block; remove per #89.
       exec: {
         command: ['sh', '-c', 'echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse'],
       },
