@@ -16,7 +16,7 @@ Electrs needs a fully-synced Bitcoin archival node to do anything useful. Instal
 
 ## Getting set up
 
-1. Install **Bitcoin** first if it isn't already installed.
+1. Install **Bitcoin** first if it isn't already installed. Electrs needs **Bitcoin Core 31.1:17 or later**. Bitcoin Knots (pre-RDTS) cannot serve it — run **Fulcrum** instead, or switch Bitcoin to Bitcoin Core. The **Bitcoin REST** health check tells you if your Bitcoin cannot serve Electrs.
 2. Start Electrs. On first run it will report **Electrum server is starting** until it has bound its port, and it will not begin indexing until your Bitcoin node has completed its initial block download. This can take a long time on a fresh node.
 3. Once Bitcoin is fully synced, Electrs will build its own index. When it can answer between indexing batches, **Sync Progress** shows Electrs's indexed block beside Bitcoin's current block. This typically takes several hours on first run. An update from an older Electrs release rebuilds the index in the new format too and requires at least 120 GB of free space.
 4. When the **Sync Progress** health check reports **Fully synced**, point your wallet at the **Electrum (SSL)** interface — copy the address from the **Interfaces** page rather than typing a port from memory.
