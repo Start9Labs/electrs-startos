@@ -16,13 +16,30 @@ export const main = sdk.setupMain(async ({ effects }) => {
     (await storeJson.read((s) => s.syncNotified).once()) ?? false
   let everSynced = (await storeJson.read((s) => s.everSynced).once()) ?? false
 
-  // bitcoind's direct RPC/REST address is resolved reactively over the LXC
-  // bridge. While bitcoind is absent it resolves null and the field stays
-  // absent; main restarts and writes the address when bitcoind appears.
+  // Null while Bitcoin publishes no rpc-local binding; .const() restarts main when it appears.
   const rpc = await bitcoindRpc(effects)
-  await tomlFile.merge(effects, {
-    ...(rpc && { daemon_rpc_addr: rpc }),
-  })
+  if (!rpc) {
+    return sdk.Daemons.of(effects).addHealthCheck('bitcoind-rest', {
+      ready: {
+        display: i18n('Bitcoin REST'),
+        gracePeriod: 0,
+        trigger: sdk.trigger.cooldownTrigger(60_000),
+        fn: async () =>
+          (
+            await sdk.checkDependencies(effects, ['bitcoind'])
+          ).installedSatisfied('bitcoind')
+            ? {
+                result: 'failure',
+                message: i18n(
+                  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.1:17 or later serves it; Bitcoin Knots (pre-RDTS) does not. Run Fulcrum instead of Electrs, or switch Bitcoin to Bitcoin Core 31.1:17 or later.',
+                ),
+              }
+            : { result: 'loading', message: i18n('Bitcoin is not installed') },
+      },
+      requires: [],
+    })
+  }
+  await tomlFile.merge(effects, { daemon_rpc_addr: rpc })
 
   const electrsContainer = sdk.SubContainer.of(
     effects,
@@ -113,8 +130,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 ),
             result: 'loading' as const,
           })
-
-          if (!rpc) return unavailable()
 
           const chainInfo = await electrsContainer.exec([
             'curl',

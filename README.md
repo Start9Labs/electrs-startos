@@ -72,7 +72,7 @@ Two models, and most of the config file is pinned rather than configurable.
 Its fields fall into three groups:
 
 - **Pinned.** The cookie path, the network, and the Electrum bind address are `z.literal(...).catch(...)`, so a changed value is **repaired on read** rather than merely overwritten. The auth field is pinned to _undefined_ for a specific reason: electrs exits outright if both an auth value and a cookie file are set.
-- **Resolved at start.** The Bitcoin RPC address is written by `main` from the live bridge address. **When Bitcoin is absent it is omitted rather than defaulted**, so electrs fails visibly and the reactive read heals it in with one restart when Bitcoin appears.
+- **Resolved at start.** The Bitcoin RPC address is written by `main` from the live bridge address. **When it cannot be resolved nothing is written and electrs is not started** — `main` returns the `bitcoind-rest` check instead (see [Health Checks](#health-checks)), and the reactive read restarts it when Bitcoin's binding appears.
 - **User-owned via the action.** The log level.
 
 Every other upstream option — the database directory, the block-download wait, the RPC timeout, the server banner — is fixed or not exposed.
@@ -91,7 +91,7 @@ One, and it is required.
 
 **Bitcoin must not be pruned**, and a recurring task enforces it: electrs needs an archival node. It does **not** need Bitcoin's transaction index, unlike some other Electrum servers.
 
-**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires. The dependency floor keeps incompatible Bitcoin releases from satisfying the package.
+**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires. The dependency floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedy when one is installed anyway (see [Health Checks](#health-checks)).
 
 **The service also restarts when Bitcoin's cookie changes**, watched directly on the mounted file. An absent cookie means Bitcoin is down, and is deliberately not treated as a change.
 
@@ -144,12 +144,14 @@ It is declared **recurring**, so re-enabling pruning brings it back. The user se
 
 ## Health Checks
 
-Two checks, and the second one is the interesting one.
+Two checks, and the second one is the interesting one. A third stands in for both while Bitcoin cannot serve electrs.
 
 | Check     | Displayed as      | Method                                     |
 | --------- | ----------------- | ------------------------------------------ |
 | `electrs` | "Electrum Server" | The Electrum port is listening             |
 | `sync`    | "Sync Progress"   | Electrs's indexed tip versus Bitcoin's tip |
+
+**While Bitcoin publishes no `rpc-local` binding, `main` returns a single `bitcoind-rest` check ("Bitcoin REST") in place of the chain above.** It fails with the remedy in its message when Bitcoin is installed — Bitcoin Core before 31.1:17, and Bitcoin Knots (pre-RDTS) — and reports loading while Bitcoin is not. Nothing else runs, so that one line is the page's whole state instead of a daemon that cannot read a block. The binding is resolved with `.const()`, so `main` restarts into the normal chain when a Bitcoin that serves it appears.
 
 **"Electrum Server" going green does not mean electrs is usable.** electrs binds its listener _before_ it connects to Bitcoin, so the port is open throughout the wait for Bitcoin's sync and throughout the index build. A not-listening result therefore means electrs has not started yet — not that it is blocked. The check reports `starting` rather than failure for exactly that reason.
 
@@ -201,6 +203,7 @@ actions:
 tasks:
   - { action: 'bitcoind:autoconfig', severity: critical } # on Bitcoin's page, recurring
 health_checks:
+  - bitcoind-rest # displayed "Bitcoin REST"; the only entry while Bitcoin has no rpc-local binding — fails with the remedy
   - electrs # displayed "Electrum Server"; binds before it connects to Bitcoin
   - sync # displayed "Sync Progress"; compares indexed and Bitcoin tips
 ```
