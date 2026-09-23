@@ -12,6 +12,9 @@ export const port = 50001
 // (mempool/specter/canary) resolve electrs over the bridge without a literal.
 export const electrumHostId = 'electrum'
 
+export const index = sdk.volumes.main.subpath('db')
+export const legacyIndex = sdk.volumes.main.subpath('db-0.11')
+
 export const logFilters = {
   ERROR: i18n('Error'),
   WARN: i18n('Warning'),

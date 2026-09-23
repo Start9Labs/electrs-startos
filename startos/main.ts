@@ -1,10 +1,11 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
+import { rm } from 'fs/promises'
 import { tomlFile } from './fileModels/electrs.toml'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { bitcoindRpc, port } from './utils'
+import { bitcoindRpc, legacyIndex, port } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   /**
@@ -31,7 +32,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
             ? {
                 result: 'failure',
                 message: i18n(
-                  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.1:17 or later serves it; Bitcoin Knots (pre-RDTS) does not. Run Fulcrum instead of Electrs, or switch Bitcoin to Bitcoin Core 31.1:17 or later.',
+                  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.1:17 or later serves it; Bitcoin Knots (pre-RDTS) does not. Downgrade Electrs to 0.11.1:20, switch Bitcoin to Bitcoin Core 31.1:17 or later, or run Fulcrum instead of Electrs.',
                 ),
               }
             : { result: 'loading', message: i18n('Bitcoin is not installed') },
@@ -39,6 +40,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       requires: [],
     })
   }
+  await rm(legacyIndex, { recursive: true, force: true })
   await tomlFile.merge(effects, { daemon_rpc_addr: rpc })
 
   const electrsContainer = sdk.SubContainer.of(

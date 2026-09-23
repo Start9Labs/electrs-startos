@@ -11,7 +11,7 @@ const dict = {
   'Fully synced': 26,
   'Sync Progress': 4,
   'Bitcoin REST': 35,
-  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.1:17 or later serves it; Bitcoin Knots (pre-RDTS) does not. Run Fulcrum instead of Electrs, or switch Bitcoin to Bitcoin Core 31.1:17 or later.': 37,
+  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.1:17 or later serves it; Bitcoin Knots (pre-RDTS) does not. Downgrade Electrs to 0.11.1:20, switch Bitcoin to Bitcoin Core 31.1:17 or later, or run Fulcrum instead of Electrs.': 37,
   'Bitcoin is not installed': 38,
   'Electrum (SSL)': 32,
   'The Electrum protocol endpoint, served over SSL': 33,
