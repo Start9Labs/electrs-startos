@@ -60,6 +60,8 @@ One volume, plus a read-only view of Bitcoin's.
 
 **The index is the bulk of the volume and is excluded from backups** — see [Backups and Restore](#backups-and-restore). Everything else on `main` is small.
 
+**An update from the previous index format keeps the old index as `db-0.11`**, and `main` deletes it the first time it starts with a Bitcoin that serves `rpc-local` (see [Dependencies](#dependencies)). Until then a downgrade to the previous compatible Electrs release moves it back and that release resumes where it was; otherwise it rebuilds its index from scratch. `db-0.11` is excluded from backups too.
+
 ## File Models
 
 Two models, and most of the config file is pinned rather than configurable.
@@ -91,7 +93,7 @@ One, and it is required.
 
 **Bitcoin must not be pruned**, and a recurring task enforces it: electrs needs an archival node. It does **not** need Bitcoin's transaction index, unlike some other Electrum servers.
 
-**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires. The dependency floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedy when one is installed anyway (see [Health Checks](#health-checks)).
+**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires. The dependency floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
 
 **The service also restarts when Bitcoin's cookie changes**, watched directly on the mounted file. An absent cookie means Bitcoin is down, and is deliberately not treated as a change.
 
@@ -151,7 +153,7 @@ Two checks, and the second one is the interesting one. A third stands in for bot
 | `electrs` | "Electrum Server" | The Electrum port is listening             |
 | `sync`    | "Sync Progress"   | Electrs's indexed tip versus Bitcoin's tip |
 
-**While Bitcoin publishes no `rpc-local` binding, `main` returns a single `bitcoind-rest` check ("Bitcoin REST") in place of the chain above.** It fails with the remedy in its message when Bitcoin is installed — Bitcoin Core before 31.1:17, and Bitcoin Knots (pre-RDTS) — and reports loading while Bitcoin is not. Nothing else runs, so that one line is the page's whole state instead of a daemon that cannot read a block. The binding is resolved with `.const()`, so `main` restarts into the normal chain when a Bitcoin that serves it appears.
+**While Bitcoin publishes no `rpc-local` binding, `main` returns a single `bitcoind-rest` check ("Bitcoin REST") in place of the chain above.** It fails when Bitcoin is installed — an older Bitcoin Core line, or Bitcoin Knots (pre-RDTS) — with the remedies in its message: a downgrade to the previous compatible Electrs release, a Bitcoin Core release that serves `rpc-local`, or Fulcrum. It reports loading while Bitcoin is not installed. Nothing else runs, so that one line is the page's whole state instead of a daemon that cannot read a block. The binding is resolved with `.const()`, so `main` restarts into the normal chain when a Bitcoin that serves it appears.
 
 **"Electrum Server" going green does not mean electrs is usable.** electrs binds its listener _before_ it connects to Bitcoin, so the port is open throughout the wait for Bitcoin's sync and throughout the index build. A not-listening result therefore means electrs has not started yet — not that it is blocked. The check reports `starting` rather than failure for exactly that reason.
 
@@ -161,7 +163,7 @@ During an index build electrs processes a whole batch before servicing requests,
 
 ## Backups and Restore
 
-The `main` volume is copied **except the index**, which is excluded.
+The `main` volume is copied **except the index**, which is excluded, along with the previous-format index kept for a downgrade.
 
 So the backup is the configuration and the two flags — kilobytes rather than the tens of gigabytes the index occupies. The trade is explicit: a restored instance **rebuilds its index from scratch**, taking the same hours a fresh install does, and nothing that depends on electrs works until it finishes.
 

@@ -1,7 +1,9 @@
-import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
-import { rm } from 'fs/promises'
+import { VersionInfo } from '@start9labs/start-sdk'
+import { existsSync } from 'fs'
+import { rename, rm } from 'fs/promises'
 import { tomlFile } from '../fileModels/electrs.toml'
 import { storeJson } from '../fileModels/store.json'
+import { index, legacyIndex } from '../utils'
 
 export const v_0_12_0_0 = VersionInfo.of({
   version: '0.12.0:0',
@@ -24,10 +26,7 @@ La mise à jour reconstruit l'index d'adresses. Electrs sera donc indisponible p
   },
   migrations: {
     up: async ({ effects }) => {
-      await rm('/media/startos/volumes/main/db', {
-        recursive: true,
-        force: true,
-      })
+      if (existsSync(index)) await rename(index, legacyIndex)
 
       const config = await tomlFile.read().once()
       if (config) {
@@ -44,6 +43,14 @@ La mise à jour reconstruit l'index d'adresses. Electrs sera donc indisponible p
         syncNotified: false,
       })
     },
-    down: IMPOSSIBLE,
+    down: async ({ effects }) => {
+      await rm(index, { recursive: true, force: true })
+      if (existsSync(legacyIndex)) await rename(legacyIndex, index)
+
+      await storeJson.merge(effects, {
+        everSynced: false,
+        syncNotified: false,
+      })
+    },
   },
 })
