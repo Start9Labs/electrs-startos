@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { bitcoindDescription, long, short } from './i18n'
+import { bitcoindDescription, long, preDownloadMessage, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'electrs',
@@ -9,6 +9,10 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/romanz/electrs/',
   marketingUrl: 'https://github.com/romanz/electrs/',
   donationUrl: null,
+  preDownloadAlert: {
+    message: preDownloadMessage,
+    when: { sourceVersion: '<0.12.0:0' },
+  },
   description: { short, long },
   volumes: ['main'],
   images: {
