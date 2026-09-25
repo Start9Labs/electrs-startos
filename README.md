@@ -119,7 +119,7 @@ The scheme override is what renders an address as `ssl://host:port`; without it 
 
 Install seeds the config and nothing else. There is no credential and no task on this service.
 
-What governs the first run is Bitcoin: electrs cannot index until Bitcoin has finished its own sync, and the dependency's sync check is what holds it there. Once Bitcoin is ready, electrs begins building its address index, which **takes hours on first run** and is the longest thing this package does. An update that changes the index format rebuilds it too; the update to the current format requires at least 120 GB of free space.
+What governs the first run is Bitcoin: electrs cannot index until Bitcoin has finished its own sync, and the dependency's sync check is what holds it there. Once Bitcoin is ready, electrs begins building its address index, which **takes hours on first run** and is the longest thing this package does. An update that changes the index format rebuilds it too; the update to the current format requires at least 120 GB of free space. Updating from Electrs 0.11 makes StartOS ask the user to confirm that cost and the Bitcoin Core 31.1:17 requirement before it downloads the package.
 
 A notification is sent when the index first completes, so the wait does not have to be watched.
 

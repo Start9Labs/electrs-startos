@@ -11,6 +11,19 @@ export const bitcoindDescription = {
     'Fournit les blocs et les sorties dépensées via REST, ainsi que les données du mempool via RPC.',
 }
 
+export const preDownloadMessage = {
+  en_US:
+    '**Electrs 0.12 requires Bitcoin Core 31.1:17 or later.** Bitcoin Knots (pre-RDTS) and earlier Bitcoin Core versions cannot serve it. Updating from Electrs 0.11 also rebuilds the address index: Electrs is unavailable for several hours and needs at least 120 GB of free space.',
+  es_ES:
+    '**Electrs 0.12 requiere Bitcoin Core 31.1:17 o posterior.** Bitcoin Knots (pre-RDTS) y las versiones anteriores de Bitcoin Core no pueden servirlo. La actualización desde Electrs 0.11 también reconstruye el índice de direcciones: Electrs no estará disponible durante varias horas y necesita al menos 120 GB de espacio libre.',
+  de_DE:
+    '**Electrs 0.12 erfordert Bitcoin Core 31.1:17 oder neuer.** Bitcoin Knots (pre-RDTS) und ältere Versionen von Bitcoin Core können es nicht bedienen. Die Aktualisierung von Electrs 0.11 baut außerdem den Adressindex neu auf: Electrs ist mehrere Stunden lang nicht verfügbar und benötigt mindestens 120 GB freien Speicherplatz.',
+  pl_PL:
+    '**Electrs 0.12 wymaga Bitcoin Core 31.1:17 lub nowszego.** Bitcoin Knots (pre-RDTS) i starsze wersje Bitcoin Core nie mogą go obsłużyć. Aktualizacja z Electrs 0.11 przebudowuje też indeks adresów: Electrs będzie niedostępny przez kilka godzin i potrzebuje co najmniej 120 GB wolnego miejsca.',
+  fr_FR:
+    "**Electrs 0.12 nécessite Bitcoin Core 31.1:17 ou plus récent.** Bitcoin Knots (pre-RDTS) et les versions antérieures de Bitcoin Core ne peuvent pas le servir. La mise à jour depuis Electrs 0.11 reconstruit aussi l'index d'adresses : Electrs est indisponible pendant plusieurs heures et nécessite au moins 120 Go d'espace libre.",
+}
+
 export const short = {
   en_US: 'An efficient re-implementation of Electrum Server in Rust',
   es_ES: 'Una reimplementación eficiente del servidor Electrum en Rust',
