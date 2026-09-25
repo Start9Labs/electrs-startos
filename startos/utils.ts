@@ -14,6 +14,7 @@ export const electrumHostId = 'electrum'
 
 export const index = sdk.volumes.main.subpath('db')
 export const legacyIndex = sdk.volumes.main.subpath('db-0.11')
+export const reindexRequest = sdk.volumes.main.subpath('reindex.request')
 
 export const logFilters = {
   ERROR: i18n('Error'),
