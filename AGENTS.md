@@ -27,6 +27,7 @@ verified, tried, and decided belongs in the commit message and the PR body.
 ## This repo
 
 - **`daemon_rpc_addr` must stay on Bitcoin's bridge-only `rpc-local` binding.** Bindex fetches blocks and spent outputs over HTTP REST on that address; the exported `rpc` binding lands on a JSON-RPC-only proxy.
+- **Don't lower the `bitcoind` `versionRange` below `>=31.1:17`, or widen it to another Core line.** Upstream electrs 0.12 needs REST endpoints first released in Core 30.0 and 31.0 (upstream `doc/upgrading.md`), so enabling REST on the 28.x–30.x packages would not make them compatible. README § Dependencies.
 - **Omit the address rather than defaulting it while bitcoind is unresolved.** The TOML field is `z.string().optional()` precisely so it can be absent until the reactive read heals it in.
 - **Keep the `tw-reuse` oneshot until #89 closes.** Without `tcp_tw_reuse=1` bindex's connection churn exhausts the container's ephemeral ports within a minute of indexing and electrs crash-loops; upstream only escapes it by talking to loopback. README § Image and Container Runtime; the issue carries the removal test.
 - **Delete `db-0.11` in `main`, not in a migration.** It is what a downgrade to the previous release restores, so it has to survive until Bitcoin serves `rpc-local`.
