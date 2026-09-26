@@ -27,6 +27,11 @@ const dict = {
   Trace: 22,
   'Sync Complete': 29,
   'Electrs has finished building its address index. The Electrum server is ready.': 30,
+  Reindex: 39,
+  'Delete the address index and rebuild it from Bitcoin. Use this only if the index is corrupted: Electrs keeps crashing and its logs show a database error such as "Corruption" or "please reindex". If they say "client failed" instead, Bitcoin is not answering yet, and a reindex will not help. A slow or busy index is not a reason to reindex.': 40,
+  'Electrs and every service that uses it are unavailable for several hours while the index rebuilds, which needs at least 120 GB of free space. If the logs show input/output errors, check your drive first: a rebuild on a failing drive fails the same way.': 41,
+  'Electrs is restarting. It deletes its index and rebuilds it from Bitcoin, which takes several hours.': 42,
+  'Electrs deletes its index and rebuilds it from Bitcoin the next time it starts.': 43,
 } as const
 
 export type I18nKey = keyof typeof dict

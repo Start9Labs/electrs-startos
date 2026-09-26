@@ -21,7 +21,7 @@ Electrs needs a fully-synced Bitcoin archival node to do anything useful. Instal
 3. Once Bitcoin is fully synced, Electrs will build its own index. When it can answer between indexing batches, **Sync Progress** shows Electrs's indexed block beside Bitcoin's current block. This typically takes several hours on first run. An update from an older Electrs release rebuilds the index in the new format too and requires at least 120 GB of free space.
 4. When the **Sync Progress** health check reports **Fully synced**, point your wallet at the **Electrum (SSL)** interface — copy the address from the **Interfaces** page rather than typing a port from memory.
 
-Once **Fully synced** appears for the current index format, routine restarts reuse that index. If **Sync Progress** later reports **Electrs is not responding. It is likely busy indexing; this usually clears on its own.**, that is a busy moment — Electrs answers wallet queries only between indexing batches — and it clears by itself, normally within a minute or two. It does not mean the index is being rebuilt, and it is not a reason to reindex.
+Once **Fully synced** appears for the current index format, routine restarts reuse that index. If **Sync Progress** later reports **Electrs is not responding. It is likely busy indexing; this usually clears on its own.**, that is a busy moment — Electrs answers wallet queries only between indexing batches — and it clears by itself, normally within a minute or two. It does not mean the index is being rebuilt, and it is not a reason to reindex. **Reindex** is for an index that is corrupted — Electrs keeps crashing and its logs show a database error.
 
 ## Using Electrs
 
@@ -36,3 +36,4 @@ Once connected, Electrs serves all standard Electrum protocol queries: balances,
 ### Actions
 
 - **Configure** — adjust the log verbosity.
+- **Reindex** — delete the address index and rebuild it from Bitcoin, without uninstalling Electrs. Use it only when the logs show a database error such as `Corruption`. If they say `client failed`, Bitcoin is not answering yet — wait for Bitcoin instead. Electrs, and anything that uses it, is unavailable for several hours while it rebuilds. If the logs show input/output errors, check your drive first.
