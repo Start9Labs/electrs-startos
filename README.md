@@ -62,20 +62,22 @@ One volume, plus a read-only view of Bitcoin's.
 
 **An update from the previous index format keeps the old index as `db-0.11`**, and `main` deletes it the first time it starts with a Bitcoin that serves `rpc-local` (see [Dependencies](#dependencies)). Until then a downgrade to the previous compatible Electrs release moves it back and that release resumes where it was; otherwise it rebuilds its index from scratch. `db-0.11` is excluded from backups too.
 
+A pending Reindex is an empty `reindex.request` file at the volume root. `main` removes it once the index is gone — see [Actions](#actions).
+
 ## File Models
 
 Two models, and most of the config file is pinned rather than configurable.
 
-| File           | Format | Modelled                | Written by                   |
-| -------------- | ------ | ----------------------- | ---------------------------- |
-| `electrs.toml` | TOML   | Yes — `FileHelper.toml` | Init, `main`, and the action |
-| `store.json`   | JSON   | Yes — `FileHelper.json` | `main`                       |
+| File           | Format | Modelled                | Written by                             |
+| -------------- | ------ | ----------------------- | -------------------------------------- |
+| `electrs.toml` | TOML   | Yes — `FileHelper.toml` | Init, `main`, and the Configure action |
+| `store.json`   | JSON   | Yes — `FileHelper.json` | `main`                                 |
 
 Its fields fall into three groups:
 
 - **Pinned.** The cookie path, the network, and the Electrum bind address are `z.literal(...).catch(...)`, so a changed value is **repaired on read** rather than merely overwritten. The auth field is pinned to _undefined_ for a specific reason: electrs exits outright if both an auth value and a cookie file are set.
 - **Resolved at start.** The Bitcoin RPC address is written by `main` from the live bridge address. **When it cannot be resolved nothing is written and electrs is not started** — `main` returns the `bitcoind-rest` check instead (see [Health Checks](#health-checks)), and the reactive read restarts it when Bitcoin's binding appears.
-- **User-owned via the action.** The log level.
+- **User-owned via the Configure action.** The log level.
 
 Every other upstream option — the database directory, the block-download wait, the RPC timeout, the server banner — is fixed or not exposed.
 
@@ -125,7 +127,7 @@ A notification is sent when the index first completes, so the wait does not have
 
 ## Actions
 
-One action.
+Two actions: one setting, and the recovery for a corrupted index.
 
 ### Configure
 
@@ -133,6 +135,16 @@ Sets the log level in `electrs.toml`.
 
 - **Cost:** applies on restart.
 - **Repeat safety:** idempotent.
+
+### Reindex
+
+Deletes the address index so electrs rebuilds it from Bitcoin — the in-place replacement for uninstalling and reinstalling.
+
+- **When to run it:** electrs keeps exiting and its error chain names the database — `RocksDB failed: Corruption` under `failed to open index`, or under `sync failed` when a compaction after catch-up reaches the bad block — or it panics with `please reindex!`. `client failed` under either wrapper means Bitcoin's REST is down or still warming up, and a reindex does not help. Not for a busy index (see [Health Checks](#health-checks)), and not for a Bitcoin that is stalled or cannot serve electrs. Input/output errors point at the drive: a rebuild on failing storage fails the same way.
+- **What it changes:** creates an empty `reindex.request` at the volume root and restarts electrs if it is running. On the next start, before anything else, `main` deletes `db`, resets both sync flags so the rebuild is reported and notified as a first run, and removes the marker last, so an interrupted delete repeats. `db-0.11` is left alone, because it is the downgrade path.
+- **Cost:** the hours of a first-run build, during which dependents have no complete index. The rebuild needs at least 120 GB of free space.
+- **Repeat safety:** a second run before the next start changes nothing; a run after the rebuild has started starts it over.
+- **What happens next:** if electrs is stopped, nothing happens until it is started. If Bitcoin cannot serve electrs, the index is deleted and the rebuild waits for the `bitcoind-rest` check to clear.
 
 ## Tasks
 
@@ -202,6 +214,7 @@ interfaces:
   main: { type: api, port: 50001 } # TLS-terminated by StartOS; plaintext is bridge-only
 actions:
   - config
+  - reindex # deletes db on the next start; db-0.11 is kept
 tasks:
   - { action: 'bitcoind:autoconfig', severity: critical } # on Bitcoin's page, recurring
 health_checks:

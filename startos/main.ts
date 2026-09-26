@@ -1,17 +1,24 @@
 import { FileHelper } from '@start9labs/start-sdk'
+import { existsSync } from 'fs'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
 import { rm } from 'fs/promises'
 import { tomlFile } from './fileModels/electrs.toml'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { bitcoindRpc, legacyIndex, port } from './utils'
+import { bitcoindRpc, index, legacyIndex, port, reindexRequest } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   /**
    * ======================== Setup (optional) ========================
    */
   console.info(i18n('Starting Electrs!'))
+
+  if (existsSync(reindexRequest)) {
+    await rm(index, { recursive: true, force: true })
+    await storeJson.merge(effects, { everSynced: false, syncNotified: false })
+    await rm(reindexRequest, { force: true })
+  }
 
   let syncNotified =
     (await storeJson.read((s) => s.syncNotified).once()) ?? false
