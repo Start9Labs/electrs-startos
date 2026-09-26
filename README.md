@@ -95,7 +95,9 @@ One, and it is required.
 
 **Bitcoin must not be pruned**, and a recurring task enforces it: electrs needs an archival node. It does **not** need Bitcoin's transaction index, unlike some other Electrum servers.
 
-**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires. The dependency floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
+**Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires.
+
+**Bitcoin must be Bitcoin Core 31.1:17 or later, for two reasons.** Upstream electrs 0.12 reads spent outputs and partial blocks over REST endpoints that first shipped in Bitcoin Core 30.0 and 31.0 ([bitcoin#32540](https://github.com/bitcoin/bitcoin/pull/32540), [bitcoin#33657](https://github.com/bitcoin/bitcoin/pull/33657)), so no 28.x–30.x line can serve it however it is configured; and 31.1:17 is the first Bitcoin Core package revision that enables REST and publishes `rpc-local`. The `>=31.1:17` floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
 
 **The service also restarts when Bitcoin's cookie changes**, watched directly on the mounted file. An absent cookie means Bitcoin is down, and is deliberately not treated as a change.
 
