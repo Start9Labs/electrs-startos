@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { bitcoindDescription, long, short } from './i18n'
+import { long, preDownloadMessage, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'electrs',
@@ -9,6 +9,10 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/romanz/electrs/',
   marketingUrl: 'https://github.com/romanz/electrs/',
   donationUrl: null,
+  preDownloadAlert: {
+    message: preDownloadMessage,
+    when: { sourceVersion: '<0.12.0:0' },
+  },
   description: { short, long },
   volumes: ['main'],
   images: {
@@ -20,16 +24,7 @@ export const manifest = setupManifest({
         },
       },
       arch: ['x86_64', 'aarch64'],
-    },
-  },
-  dependencies: {
-    bitcoind: {
-      description: bitcoindDescription,
-      optional: false,
-      metadata: {
-        title: 'Bitcoin',
-        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/refs/heads/30.x/dep-icon.svg',
-      },
+      emulateMissing: false,
     },
   },
 })

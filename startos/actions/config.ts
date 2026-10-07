@@ -10,7 +10,7 @@ export const inputSpec = InputSpec.of({
   log_filters: Value.select({
     name: i18n('Log Level'),
     description: i18n(
-      'Select the level of log verbosity. Less is usually better.',
+      'How much Electrs writes to its logs. Each level includes everything in the levels above it.\n- Error: failures only\n- Warning: also conditions that may need attention\n- Info: also startup and sync progress\n- Debug: also every wallet connection, request and reply; noisy, for chasing a specific problem\n- Trace: everything Electrs can log; very noisy',
     ),
     values: logFilters,
     default: 'INFO',
@@ -24,7 +24,7 @@ export const config = sdk.Action.withInput(
   // metadata
   async ({ effects }) => ({
     name: i18n('Configure'),
-    description: i18n('Customize your electrs Electrum server'),
+    description: i18n('Set how much Electrs writes to its logs.'),
     warning: null,
     allowedStatuses: 'any',
     group: null,

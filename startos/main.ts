@@ -2,6 +2,7 @@ import { FileHelper } from '@start9labs/start-sdk'
 import { existsSync } from 'fs'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
 import { rm } from 'fs/promises'
+import { dependencies } from './dependencies'
 import { tomlFile } from './fileModels/electrs.toml'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
@@ -33,9 +34,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
         gracePeriod: 0,
         trigger: sdk.trigger.cooldownTrigger(60_000),
         fn: async () =>
-          (
-            await sdk.checkDependencies(effects, ['bitcoind'])
-          ).installedSatisfied('bitcoind')
+          (await dependencies.check(effects, ['bitcoind'])).installedSatisfied(
+            'bitcoind',
+          )
             ? {
                 result: 'failure',
                 message: i18n(
