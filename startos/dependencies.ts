@@ -1,8 +1,18 @@
 import { autoconfig } from 'bitcoin-core-startos/startos/actions/config/autoconfig'
 import { i18n } from './i18n'
+import { bitcoindDescription } from './manifest/i18n'
 import { sdk } from './sdk'
 
-export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
+const bitcoind = sdk.Dependency.required('bitcoind', {
+  description: bitcoindDescription,
+  metadata: {
+    title: 'Bitcoin',
+    icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/refs/heads/30.x/dep-icon.svg',
+  },
+  versionRange: '>=31.1:17',
+  kind: 'running',
+  healthChecks: ['bitcoind', 'sync-progress'],
+}).withInit(async (effects) => {
   await sdk.action.createTask(effects, 'bitcoind', autoconfig, 'critical', {
     input: {
       kind: 'partial',
@@ -12,12 +22,6 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
     when: { condition: 'input-not-matches', once: false },
     reason: i18n('Electrs requires an archival bitcoin node.'),
   })
-
-  return {
-    bitcoind: {
-      healthChecks: ['bitcoind', 'sync-progress'],
-      kind: 'running',
-      versionRange: '>=31.1:17',
-    },
-  }
 })
+
+export const dependencies = sdk.Dependencies.of().addDependency(bitcoind)

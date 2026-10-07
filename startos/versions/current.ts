@@ -1,23 +1,38 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.12.0:3',
+  version: '0.12.0:4',
   releaseNotes: {
     en_US: `A new **Reindex** action rebuilds a corrupted address index without uninstalling Electrs.
 
-**Electrs 0.12 requires Bitcoin Core 31.1:17 or later.** Bitcoin Knots (pre-RDTS) and earlier Bitcoin Core versions cannot serve it. Updating from Electrs 0.11 rebuilds the address index, which takes several hours and needs at least 120 GB of free space.`,
+**Electrs 0.12 requires Bitcoin Core 31.1:17 or later.** Bitcoin Knots (pre-RDTS) and earlier Bitcoin Core versions cannot serve it. Updating from Electrs 0.11 rebuilds the address index, which takes several hours and needs at least 120 GB of free space.
+
+- Updating from Electrs 0.11 asks you to confirm the Bitcoin Core requirement and the index rebuild before the update downloads.
+- The Log Level setting's description explains each level.`,
     es_ES: `Una nueva acción **Reindexar** reconstruye un índice de direcciones dañado sin desinstalar Electrs.
 
-**Electrs 0.12 requiere Bitcoin Core 31.1:17 o posterior.** Bitcoin Knots (pre-RDTS) y las versiones anteriores de Bitcoin Core no pueden servirlo. La actualización desde Electrs 0.11 reconstruye el índice de direcciones, lo que lleva varias horas y necesita al menos 120 GB de espacio libre.`,
+**Electrs 0.12 requiere Bitcoin Core 31.1:17 o posterior.** Bitcoin Knots (pre-RDTS) y las versiones anteriores de Bitcoin Core no pueden servirlo. La actualización desde Electrs 0.11 reconstruye el índice de direcciones, lo que lleva varias horas y necesita al menos 120 GB de espacio libre.
+
+- Al actualizar desde Electrs 0.11 se te pide confirmar el requisito de Bitcoin Core y la reconstrucción del índice antes de descargar la actualización.
+- La descripción del ajuste Nivel de registro explica cada nivel.`,
     de_DE: `Eine neue Aktion **Neu indizieren** baut einen beschädigten Adressindex neu auf, ohne Electrs zu deinstallieren.
 
-**Electrs 0.12 erfordert Bitcoin Core 31.1:17 oder neuer.** Bitcoin Knots (pre-RDTS) und ältere Versionen von Bitcoin Core können es nicht bedienen. Die Aktualisierung von Electrs 0.11 baut den Adressindex neu auf, was mehrere Stunden dauert und mindestens 120 GB freien Speicherplatz benötigt.`,
+**Electrs 0.12 erfordert Bitcoin Core 31.1:17 oder neuer.** Bitcoin Knots (pre-RDTS) und ältere Versionen von Bitcoin Core können es nicht bedienen. Die Aktualisierung von Electrs 0.11 baut den Adressindex neu auf, was mehrere Stunden dauert und mindestens 120 GB freien Speicherplatz benötigt.
+
+- Bei der Aktualisierung von Electrs 0.11 werden Sie vor dem Herunterladen gebeten, die Anforderung an Bitcoin Core und den Neuaufbau des Index zu bestätigen.
+- Die Beschreibung der Einstellung Protokollstufe erklärt jede Stufe.`,
     pl_PL: `Nowa akcja **Reindeksuj** odbudowuje uszkodzony indeks adresów bez odinstalowywania Electrs.
 
-**Electrs 0.12 wymaga Bitcoin Core 31.1:17 lub nowszego.** Bitcoin Knots (pre-RDTS) i starsze wersje Bitcoin Core nie mogą go obsłużyć. Aktualizacja z Electrs 0.11 przebudowuje indeks adresów, co trwa kilka godzin i wymaga co najmniej 120 GB wolnego miejsca.`,
+**Electrs 0.12 wymaga Bitcoin Core 31.1:17 lub nowszego.** Bitcoin Knots (pre-RDTS) i starsze wersje Bitcoin Core nie mogą go obsłużyć. Aktualizacja z Electrs 0.11 przebudowuje indeks adresów, co trwa kilka godzin i wymaga co najmniej 120 GB wolnego miejsca.
+
+- Aktualizacja z Electrs 0.11 prosi o potwierdzenie wymagania dotyczącego Bitcoin Core i przebudowy indeksu przed pobraniem aktualizacji.
+- Opis ustawienia Poziom logowania objaśnia każdy poziom.`,
     fr_FR: `Une nouvelle action **Réindexer** reconstruit un index d'adresses corrompu sans désinstaller Electrs.
 
-**Electrs 0.12 nécessite Bitcoin Core 31.1:17 ou plus récent.** Bitcoin Knots (pre-RDTS) et les versions antérieures de Bitcoin Core ne peuvent pas le servir. La mise à jour depuis Electrs 0.11 reconstruit l'index d'adresses, ce qui prend plusieurs heures et nécessite au moins 120 Go d'espace libre.`,
+**Electrs 0.12 nécessite Bitcoin Core 31.1:17 ou plus récent.** Bitcoin Knots (pre-RDTS) et les versions antérieures de Bitcoin Core ne peuvent pas le servir. La mise à jour depuis Electrs 0.11 reconstruit l'index d'adresses, ce qui prend plusieurs heures et nécessite au moins 120 Go d'espace libre.
+
+- La mise à jour depuis Electrs 0.11 vous demande de confirmer l'exigence de Bitcoin Core et la reconstruction de l'index avant le téléchargement.
+- La description du réglage Niveau de journalisation explique chaque niveau.`,
   },
   migrations: {},
 })
