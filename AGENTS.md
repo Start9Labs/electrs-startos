@@ -18,19 +18,23 @@ Freshly scaffolded? Work the
 guide page, not a file in this repo — read it, don't copy it in.
 
 Keep `README.md` (technical reference for an AI support or administering agent) and
-`instructions.md` (end-user docs) in sync with your changes.
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
 
-**Bugs and feature requests are GitHub issues on this repo** — file them as you find them.
+**Fix a defect you spot rather than reporting it** — you have the package open and the
+context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
+make: you can't pin the cause down, two defensible fixes exist, or it's too large to ride on
+the work in hand. An open issue is a report, not a queue — implement one when you're asked
+to or when it's labelled `Approved`, then close it with `Closes #<n>`.
+
 Don't record work in the repo instead: no `TODO.md`, no `NOTES.md`, no `PLAN.md`. What you
 verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **`daemon_rpc_addr` must stay on Bitcoin's bridge-only `rpc-local` binding.** Bindex fetches blocks and spent outputs over HTTP REST on that address; the exported `rpc` binding lands on a JSON-RPC-only proxy.
-- **Don't lower the `bitcoind` `versionRange` below `>=31.1:17`, or widen it to another Core line.** Upstream electrs 0.12 needs REST endpoints first released in Core 30.0 and 31.0 (upstream `doc/upgrading.md`), so enabling REST on the 28.x–30.x packages would not make them compatible. README § Dependencies.
-- **Omit the address rather than defaulting it while bitcoind is unresolved.** The TOML field is `z.string().optional()` precisely so it can be absent until the reactive read heals it in.
-- **Keep the `tw-reuse` oneshot until #89 closes.** Without `tcp_tw_reuse=1` bindex's connection churn exhausts the container's ephemeral ports within a minute of indexing and electrs crash-loops; upstream only escapes it by talking to loopback. README § Image and Container Runtime; the issue carries the removal test.
-- **Delete `db-0.11` in `main`, not in a migration.** It is what a downgrade to the previous release restores, so it has to survive until Bitcoin serves `rpc-local`.
-- **Don't set `auth` in `electrs.toml`.** electrs exits if `auth` and `cookie_file` are both present; the model pins `auth` to undefined for that reason.
-- **Sync is the indexed tip, not Electrum RPC availability.** Electrs answers wallet queries from a partial index; report success only when `blockchain.headers.subscribe` is within one block of Bitcoin's REST `chaininfo` height. Probe `blockchain.block.header(0)` first because `headers.subscribe` panics upstream on an empty index.
-- **Don't name a literal external port in docs.** StartOS assigns it and never changes it for an existing binding, so it is per-server — `start-cli package host binding list electrs electrum` reads the live value.
+- **Keep `daemon_rpc_addr` on Bitcoin's bridge-only `rpc-local` binding**, not the exported `rpc` one, which is a JSON-RPC-only proxy that cannot serve the REST endpoints bindex reads.
+- **Don't lower the `bitcoind` `versionRange` in `startos/dependencies.ts` below `>=31.1:17`, or widen it to another Core line** — no 28.x–30.x release can serve electrs 0.12, however it is configured.
+- **Delete `db-0.11` in `main`, not in a migration** — it is what a downgrade to the previous release restores, so it has to survive until Bitcoin serves `rpc-local`.
+- **Don't rename or move `port` and `electrumHostId` in `startos/utils.ts`** — dependent packages import them from this repo to reach electrs over the bridge.

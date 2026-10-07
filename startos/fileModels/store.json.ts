@@ -6,7 +6,7 @@ export const storeJson = FileHelper.json(
     base: sdk.volumes.main,
     subpath: '/store.json',
   },
-  z.object({
+  z.looseObject({
     syncNotified: z.boolean().catch(false),
     everSynced: z.boolean().catch(false),
   }),
