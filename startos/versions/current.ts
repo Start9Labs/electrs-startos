@@ -1,18 +1,17 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '0.12.0:5',
+  version: '0.12.0:6',
   releaseNotes: {
     en_US:
-      'Restarting Electrs while it is still starting stops every process of the previous run.',
+      'Stops trusting certificates from a compromised certificate authority (eMudhra).',
     es_ES:
-      'Reiniciar Electrs mientras aún se está iniciando detiene todos los procesos de la ejecución anterior.',
+      'Deja de confiar en los certificados de una autoridad de certificación comprometida (eMudhra).',
     de_DE:
-      'Ein Neustart von Electrs, während es noch startet, beendet alle Prozesse des vorherigen Laufs.',
+      'Vertraut Zertifikaten einer kompromittierten Zertifizierungsstelle (eMudhra) nicht mehr.',
     pl_PL:
-      'Ponowne uruchomienie Electrs w trakcie uruchamiania zatrzymuje wszystkie procesy poprzedniego uruchomienia.',
-    fr_FR:
-      "Redémarrer Electrs pendant son démarrage arrête tous les processus de l'exécution précédente.",
+      'Przestaje ufać certyfikatom przejętego urzędu certyfikacji (eMudhra).',
+    fr_FR: `Ne fait plus confiance aux certificats d'une autorité de certification compromise (eMudhra).`,
   },
   migrations: {},
 })
