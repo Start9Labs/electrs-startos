@@ -87,17 +87,19 @@ Every other upstream option — the database directory, the block-download wait,
 
 One, and it is required.
 
-| Dependency | Required | Health checks required      | Mounted                              | Why                       |
-| ---------- | -------- | --------------------------- | ------------------------------------ | ------------------------- |
-| Bitcoin    | Yes      | `bitcoind`, `sync-progress` | `main`, read-only at `/mnt/bitcoind` | Chain data and the cookie |
+| Dependency | Required | Health checks required                               | Mounted                              | Why                       |
+| ---------- | -------- | ---------------------------------------------------- | ------------------------------------ | ------------------------- |
+| Bitcoin    | Yes      | `bitcoind`, `sync-progress`, `background-validation` | `main`, read-only at `/mnt/bitcoind` | Chain data and the cookie |
 
-**Requiring Bitcoin's own sync check is deliberate.** While Bitcoin is still doing its initial download, electrs reports its dependency as unsatisfied rather than running a duplicate poll of its own — the state shows in one place instead of two.
+**Requiring Bitcoin's own sync check is deliberate.** While Bitcoin is still doing its initial download, StartOS reports the dependency as unsatisfied. Dependency declarations do not block startup: electrs's own initial-download wait handles normal sync, and the `bitcoin-history` health check explicitly gates the daemon on Bitcoin's `background-validation` check.
+
+**`background-validation` covers a Bitcoin bootstrapped from a UTXO snapshot.** Such a node reports `sync-progress` complete at the tip while it is still downloading the blocks beneath the snapshot, and electrs indexes from genesis: started early, it hits a block Bitcoin cannot serve yet, gets a 404 over REST, and crash-loops. The dependency lists the check so StartOS shows Bitcoin as unsatisfied meanwhile; the `bitcoin-history` health check is what holds the electrs daemon until those blocks are on disk.
 
 **Bitcoin must not be pruned**, and a recurring task enforces it: electrs needs an archival node. It does **not** need Bitcoin's transaction index, unlike some other Electrum servers.
 
 **Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires.
 
-**Bitcoin must be Bitcoin Core 31.1:17 or later, for two reasons.** Upstream electrs 0.12 reads spent outputs and partial blocks over REST endpoints that first shipped in Bitcoin Core 30.0 and 31.0 ([bitcoin#32540](https://github.com/bitcoin/bitcoin/pull/32540), [bitcoin#33657](https://github.com/bitcoin/bitcoin/pull/33657)), so no 28.x–30.x line can serve it however it is configured; and 31.1:17 is the first Bitcoin Core package revision that enables REST and publishes `rpc-local`. The `>=31.1:17` floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
+**Bitcoin must be Bitcoin Core 31.2:1 or later.** Upstream electrs 0.12 reads spent outputs and partial blocks over REST endpoints that first shipped in Bitcoin Core 30.0 and 31.0 ([bitcoin#32540](https://github.com/bitcoin/bitcoin/pull/32540), [bitcoin#33657](https://github.com/bitcoin/bitcoin/pull/33657)), so no 28.x–30.x line can serve it however it is configured; 31.1:17 is the first Bitcoin Core package revision that enables REST and publishes `rpc-local`; and 31.2:1 is the first that reports `background-validation`. The `>=31.2:1` floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
 
 **The service also restarts when Bitcoin's cookie changes**, watched directly on the mounted file. An absent cookie means Bitcoin is down, and is deliberately not treated as a change.
 
@@ -123,7 +125,7 @@ The scheme override is what renders an address as `ssl://host:port`; without it 
 
 Install seeds the config and nothing else. There is no credential and no task on this service.
 
-What governs the first run is Bitcoin: electrs cannot index until Bitcoin has finished its own sync, and the dependency's sync check is what holds it there. Once Bitcoin is ready, electrs begins building its address index, which **takes hours on first run** and is the longest thing this package does. An update that changes the index format rebuilds it too; the update to the current format requires at least 120 GB of free space. Updating from Electrs 0.11 makes StartOS ask the user to confirm that cost and the Bitcoin Core 31.1:17 requirement before it downloads the package.
+What governs the first run is Bitcoin: electrs's own initial-download wait handles normal sync, and the `bitcoin-history` runtime gate holds the daemon until Bitcoin's background validation succeeds. Once Bitcoin is ready, electrs begins building its address index, which **takes hours on first run** and is the longest thing this package does. An update that changes the index format rebuilds it too; the update to the current format requires at least 120 GB of free space. Updating from Electrs 0.11 makes StartOS ask the user to confirm that cost and the Bitcoin Core 31.2:1 requirement before it downloads the package.
 
 A notification is sent when the index first completes, so the wait does not have to be watched.
 
@@ -160,12 +162,15 @@ It is declared **recurring**, so re-enabling pruning brings it back. The user se
 
 ## Health Checks
 
-Two checks, and the second one is the interesting one. A third stands in for both while Bitcoin cannot serve electrs.
+Three checks. A fourth stands in for them while Bitcoin cannot serve electrs.
 
-| Check     | Displayed as      | Method                                     |
-| --------- | ----------------- | ------------------------------------------ |
-| `electrs` | "Electrum Server" | The Electrum port is listening             |
-| `sync`    | "Sync Progress"   | Electrs's indexed tip versus Bitcoin's tip |
+| Check             | Displayed as            | Method                                     |
+| ----------------- | ----------------------- | ------------------------------------------ |
+| `bitcoin-history` | "Background Validation" | Bitcoin's `background-validation` succeeds |
+| `electrs`         | "Electrum Server"       | The Electrum port is listening             |
+| `sync`            | "Sync Progress"         | Electrs's indexed tip versus Bitcoin's tip |
+
+**`bitcoin-history` gates the Electrs daemon through `requires`.** It polls the declared dependency's background-validation result and reports loading until success; a missing check also leaves the daemon waiting. When Bitcoin completes background validation, Electrs starts automatically.
 
 **While Bitcoin publishes no `rpc-local` binding, `main` returns a single `bitcoind-rest` check ("Bitcoin REST") in place of the chain above.** It fails when Bitcoin is installed — an older Bitcoin Core line, or Bitcoin Knots (pre-RDTS) — with the remedies in its message: a downgrade to the previous compatible Electrs release, a Bitcoin Core release that serves `rpc-local`, or Fulcrum. It reports loading while Bitcoin is not installed. Nothing else runs, so that one line is the page's whole state instead of a daemon that cannot read a block. The binding is resolved with `.const()`, so `main` restarts into the normal chain when a Bitcoin that serves it appears.
 
@@ -211,7 +216,7 @@ file_models:
   - store.json # everSynced / syncNotified flags
 startos_managed_env_vars: [] # configuration is written into electrs.toml
 dependencies:
-  - bitcoind # required, kind: running, checks: bitcoind + sync-progress
+  - bitcoind # required, kind: running, checks: bitcoind + sync-progress + background-validation
 interfaces:
   main: { type: api, port: 50001 } # TLS-terminated by StartOS; plaintext is bridge-only
 actions:
@@ -220,6 +225,7 @@ actions:
 tasks:
   - { action: 'bitcoind:autoconfig', severity: critical } # on Bitcoin's page, recurring
 health_checks:
+  - bitcoin-history # displayed "Background Validation"; gates the daemon on Bitcoin's historical blocks
   - bitcoind-rest # displayed "Bitcoin REST"; the only entry while Bitcoin has no rpc-local binding — fails with the remedy
   - electrs # displayed "Electrum Server"; binds before it connects to Bitcoin
   - sync # displayed "Sync Progress"; compares indexed and Bitcoin tips
