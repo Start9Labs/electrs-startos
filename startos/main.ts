@@ -40,7 +40,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
             ? {
                 result: 'failure',
                 message: i18n(
-                  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.1:17 or later serves it; Bitcoin Knots (pre-RDTS) does not. Downgrade Electrs to 0.11.1:20, switch Bitcoin to Bitcoin Core 31.1:17 or later, or run Fulcrum instead of Electrs.',
+                  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.2:1 or later serves it; Bitcoin Knots (pre-RDTS) does not. Downgrade Electrs to 0.11.1:20, switch Bitcoin to Bitcoin Core 31.2:1 or later, or run Fulcrum instead of Electrs.',
                 ),
               }
             : { result: 'loading', message: i18n('Bitcoin is not installed') },
@@ -85,6 +85,24 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * ======================== Daemons ========================
    */
   return sdk.Daemons.of(effects)
+    .addHealthCheck('bitcoin-history', {
+      ready: {
+        display: i18n('Background Validation'),
+        gracePeriod: 0,
+        fn: async () =>
+          (
+            await dependencies.check(effects, ['bitcoind'])
+          ).healthCheckSatisfied('bitcoind', 'background-validation')
+            ? { result: 'success' as const, message: null }
+            : {
+                result: 'loading' as const,
+                message: i18n(
+                  'Waiting for Bitcoin to finish validating historical blocks.',
+                ),
+              },
+      },
+      requires: [],
+    })
     .addOneshot('tw-reuse', {
       subcontainer: electrsContainer,
       // Workaround for bindex opening a connection per block; remove per #89.
@@ -124,7 +142,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               }
         },
       },
-      requires: ['tw-reuse'],
+      requires: ['tw-reuse', 'bitcoin-history'],
     })
     .addHealthCheck('sync', {
       ready: {

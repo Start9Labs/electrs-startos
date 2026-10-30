@@ -35,6 +35,6 @@ verified, tried, and decided belongs in the commit message and the PR body.
 ## This repo
 
 - **Keep `daemon_rpc_addr` on Bitcoin's bridge-only `rpc-local` binding**, not the exported `rpc` one, which is a JSON-RPC-only proxy that cannot serve the REST endpoints bindex reads.
-- **Don't lower the `bitcoind` `versionRange` in `startos/dependencies.ts` below `>=31.1:17`, or widen it to another Core line** — no 28.x–30.x release can serve electrs 0.12, however it is configured.
+- **Don't lower the `bitcoind` `versionRange` in `startos/dependencies.ts` below `>=31.2:1`, or widen it to another Core line** — no 28.x–30.x release can serve electrs 0.12, however it is configured.
 - **Delete `db-0.11` in `main`, not in a migration** — it is what a downgrade to the previous release restores, so it has to survive until Bitcoin serves `rpc-local`.
 - **Don't rename or move `port` and `electrumHostId` in `startos/utils.ts`** — dependent packages import them from this repo to reach electrs over the bridge.

@@ -9,9 +9,9 @@ const bitcoind = sdk.Dependency.required('bitcoind', {
     title: 'Bitcoin',
     icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/refs/heads/30.x/dep-icon.svg',
   },
-  versionRange: '>=31.1:17',
+  versionRange: '>=31.2:1',
   kind: 'running',
-  healthChecks: ['bitcoind', 'sync-progress'],
+  healthChecks: ['bitcoind', 'sync-progress', 'background-validation'],
 }).withInit(async (effects) => {
   await sdk.action.createTask(effects, 'bitcoind', autoconfig, 'critical', {
     input: {
