@@ -11,7 +11,7 @@ export const shape = z.looseObject({
   // bitcoindRpc in utils.ts). Optional and absent while bitcoind is unresolved.
   daemon_rpc_addr: z.string().optional().catch(undefined),
   network: z.literal('bitcoin').catch('bitcoin'),
-  electrum_rpc_addr: z.literal('0.0.0.0:50001').catch('0.0.0.0:50001'),
+  electrum_rpc_addr: z.literal('[::]:50001').catch('[::]:50001'),
   log_filters: z
     .enum(['ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'])
     .catch('INFO'),

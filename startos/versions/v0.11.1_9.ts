@@ -34,7 +34,6 @@ export const v_0_11_1_9 = VersionInfo.of({
         // placeholder or legacy name is persisted.
         await tomlFile.merge(effects, {
           cookie_file: '/mnt/bitcoind/.cookie',
-          electrum_rpc_addr: '0.0.0.0:50001',
           network: 'bitcoin',
           log_filters: configYaml['log-filters'],
         })
