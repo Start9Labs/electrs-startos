@@ -103,14 +103,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
       },
       requires: [],
     })
-    .addOneshot('tw-reuse', {
-      subcontainer: electrsContainer,
-      // Workaround for bindex opening a connection per block; remove per #89.
-      exec: {
-        command: ['sh', '-c', 'echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse'],
-      },
-      requires: [],
-    })
     .addDaemon('electrs', {
       subcontainer: electrsContainer,
       exec: { command: ['electrs'] },
@@ -142,7 +134,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               }
         },
       },
-      requires: ['tw-reuse', 'bitcoin-history'],
+      requires: ['bitcoin-history'],
     })
     .addHealthCheck('sync', {
       ready: {
