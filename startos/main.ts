@@ -1,13 +1,22 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { existsSync } from 'fs'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
+import { rpcSubpath } from 'bitcoin-core-startos/startos/utils'
 import { rm } from 'fs/promises'
 import { dependencies } from './dependencies'
 import { tomlFile } from './fileModels/electrs.toml'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { bitcoindRpc, index, legacyIndex, port, reindexRequest } from './utils'
+import {
+  bitcoindCookie,
+  bitcoindMountpoint,
+  bitcoindRpc,
+  index,
+  legacyIndex,
+  port,
+  reindexRequest,
+} from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   /**
@@ -64,8 +73,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       .mountDependency<typeof manifest>({
         dependencyId: 'bitcoind',
         volumeId: 'main',
-        subpath: null,
-        mountpoint: '/mnt/bitcoind',
+        subpath: rpcSubpath,
+        mountpoint: bitcoindMountpoint,
         readonly: true,
       }),
     'electrs',
@@ -74,7 +83,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // Restart only when bitcoind writes a replacement cookie — an absent cookie
   // means bitcoind is down.
   const rootfs = await electrsContainer.rootfs
-  await FileHelper.string(`${rootfs}/mnt/bitcoind/.cookie`)
+  await FileHelper.string(`${rootfs}${bitcoindCookie}`)
     .read(
       (cookie) => cookie,
       (prev, next) => next === null || prev === next,

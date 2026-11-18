@@ -9,7 +9,7 @@ const bitcoind = sdk.Dependency.required('bitcoind', {
     title: 'Bitcoin',
     icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/refs/heads/30.x/dep-icon.svg',
   },
-  versionRange: '>=31.2:1',
+  versionRange: '>=31.2:4',
   kind: 'running',
   healthChecks: ['bitcoind', 'sync-progress', 'background-validation'],
 }).withInit(async (effects) => {

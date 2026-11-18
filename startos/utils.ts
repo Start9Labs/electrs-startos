@@ -1,5 +1,6 @@
 import { T } from '@start9labs/start-sdk'
 import {
+  rpcCookieName,
   rpcLocalHostId,
   rpcPortLocal,
 } from 'bitcoin-core-startos/startos/utils'
@@ -7,6 +8,9 @@ import { i18n } from './i18n'
 import { sdk } from './sdk'
 
 export const port = 50001
+
+export const bitcoindMountpoint = '/mnt/bitcoind'
+export const bitcoindCookie = `${bitcoindMountpoint}/${rpcCookieName}`
 
 // Host id electrs binds its Electrum interface on. Exported so dependents
 // (mempool/specter/canary) resolve electrs over the bridge without a literal.
