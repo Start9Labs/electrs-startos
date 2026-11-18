@@ -11,7 +11,7 @@ const dict = {
   'Fully synced': 26,
   'Sync Progress': 4,
   'Bitcoin REST': 35,
-  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.2:1 or later serves it; Bitcoin Knots (pre-RDTS) does not. Downgrade Electrs to 0.11.1:20, switch Bitcoin to Bitcoin Core 31.2:1 or later, or run Fulcrum instead of Electrs.': 37,
+  'Electrs needs Bitcoin Core 31.2:4 or later for REST and its published RPC cookie. Bitcoin Knots (pre-RDTS) is not supported. Downgrade Electrs to 0.11.1:20, update Bitcoin, or run Fulcrum instead of Electrs.': 37,
   'Bitcoin is not installed': 38,
   'Background Validation': 44,
   'Waiting for Bitcoin to finish validating historical blocks.': 45,
