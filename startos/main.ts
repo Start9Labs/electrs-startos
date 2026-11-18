@@ -35,29 +35,43 @@ export const main = sdk.setupMain(async ({ effects }) => {
   let everSynced = (await storeJson.read((s) => s.everSynced).once()) ?? false
 
   // Null while Bitcoin publishes no rpc-local binding; .const() restarts main when it appears.
-  const rpc = await bitcoindRpc(effects)
-  if (!rpc) {
+  const rpcAddress = await bitcoindRpc(effects)
+  const bitcoinStatus = async () => {
+    const bitcoin = await dependencies.check(effects, ['bitcoind'])
+    if (!bitcoin.installedSatisfied('bitcoind')) {
+      return {
+        result: 'loading' as const,
+        message: i18n('Bitcoin is not installed'),
+      }
+    }
+    if (!rpcAddress || !bitcoin.installedVersionSatisfied('bitcoind')) {
+      return {
+        result: 'failure' as const,
+        message: i18n(
+          'Electrs needs Bitcoin Core 31.2:4 or later for REST and its published RPC cookie. Bitcoin Knots (pre-RDTS) is not supported. Downgrade Electrs to 0.11.1:20, update Bitcoin, or run Fulcrum instead of Electrs.',
+        ),
+      }
+    }
+    return { result: 'success' as const, rpc: rpcAddress }
+  }
+  const status = await bitcoinStatus()
+  if (status.result !== 'success') {
     return sdk.Daemons.of(effects).addHealthCheck('bitcoind-rest', {
       ready: {
         display: i18n('Bitcoin REST'),
         gracePeriod: 0,
         trigger: sdk.trigger.cooldownTrigger(60_000),
-        fn: async () =>
-          (await dependencies.check(effects, ['bitcoind'])).installedSatisfied(
-            'bitcoind',
-          )
-            ? {
-                result: 'failure',
-                message: i18n(
-                  'Bitcoin does not serve the REST interface this version of Electrs reads blocks from. Bitcoin Core 31.2:1 or later serves it; Bitcoin Knots (pre-RDTS) does not. Downgrade Electrs to 0.11.1:20, switch Bitcoin to Bitcoin Core 31.2:1 or later, or run Fulcrum instead of Electrs.',
-                ),
-              }
-            : { result: 'loading', message: i18n('Bitcoin is not installed') },
+        fn: async () => {
+          const status = await bitcoinStatus()
+          if (status.result !== 'success') return status
+          await sdk.restart(effects)
+          return { result: 'success' }
+        },
       },
       requires: [],
     })
   }
-  await rm(legacyIndex, { recursive: true, force: true })
+  const rpc = status.rpc
   await tomlFile.merge(effects, { daemon_rpc_addr: rpc })
 
   const electrsContainer = sdk.SubContainer.of(
@@ -89,6 +103,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
       (prev, next) => next === null || prev === next,
     )
     .const(effects)
+
+  // Preserve the rollback index until Bitcoin's public volume is mounted.
+  await rm(legacyIndex, { recursive: true, force: true })
 
   /**
    * ======================== Daemons ========================

@@ -58,7 +58,7 @@ One volume, plus a read-only view of Bitcoin's `public` volume.
 
 **The index is the bulk of the volume and is excluded from backups** — see [Backups and Restore](#backups-and-restore). Everything else on `main` is small.
 
-**An update from the previous index format keeps the old index as `db-0.11`**, and `main` deletes it the first time it starts with a Bitcoin that serves `rpc-local` (see [Dependencies](#dependencies)). Until then a downgrade to the previous compatible Electrs release moves it back and that release resumes where it was; otherwise it rebuilds its index from scratch. `db-0.11` is excluded from backups too.
+**An update from the previous index format keeps the old index as `db-0.11`**, and `main` deletes it only after a supported Bitcoin serves `rpc-local` and its `public` volume mounts (see [Dependencies](#dependencies)). Until then a downgrade to the previous compatible Electrs release moves it back and that release resumes where it was; otherwise it rebuilds its index from scratch. `db-0.11` is excluded from backups too.
 
 A pending Reindex is an empty `reindex.request` file at the volume root. `main` removes it once the index is gone — see [Actions](#actions).
 
@@ -170,7 +170,7 @@ Three checks. A fourth stands in for them while Bitcoin cannot serve electrs.
 
 **`bitcoin-history` gates the Electrs daemon through `requires`.** It polls the declared dependency's background-validation result and reports loading until success; a missing check also leaves the daemon waiting. When Bitcoin completes background validation, Electrs starts automatically.
 
-**While Bitcoin publishes no `rpc-local` binding, `main` returns a single `bitcoind-rest` check ("Bitcoin REST") in place of the chain above.** It fails when Bitcoin is installed — an older Bitcoin Core line, or Bitcoin Knots (pre-RDTS) — with the remedies in its message: a downgrade to the previous compatible Electrs release, a Bitcoin Core release that serves `rpc-local`, or Fulcrum. It reports loading while Bitcoin is not installed. Nothing else runs, so that one line is the page's whole state instead of a daemon that cannot read a block. The binding is resolved with `.const()`, so `main` restarts into the normal chain when a Bitcoin that serves it appears.
+**While Bitcoin is outside the supported version range or publishes no `rpc-local` binding, `main` returns a single `bitcoind-rest` check ("Bitcoin REST") in place of the chain above.** It fails for an incompatible Bitcoin release with the remedies in its message: a downgrade to the previous compatible Electrs release, Bitcoin Core 31.2:4 or later, or Fulcrum. It reports loading while Bitcoin is not installed. Nothing else runs, so that one line is the page's whole state instead of a daemon that cannot read a block. The binding is resolved with `.const()`, and the check polls Bitcoin's version; `main` restarts into the normal chain when a supported Bitcoin appears, even if an update preserves its bridge address.
 
 **"Electrum Server" going green does not mean electrs is usable.** electrs binds its listener _before_ it connects to Bitcoin, so the port is open throughout the wait for Bitcoin's sync and throughout the index build. A not-listening result therefore means electrs has not started yet — not that it is blocked. The check reports `starting` rather than failure for exactly that reason.
 
@@ -224,7 +224,7 @@ tasks:
   - { action: 'bitcoind:autoconfig', severity: critical } # on Bitcoin's page, recurring
 health_checks:
   - bitcoin-history # displayed "Background Validation"; gates the daemon on Bitcoin's historical blocks
-  - bitcoind-rest # displayed "Bitcoin REST"; the only entry while Bitcoin has no rpc-local binding — fails with the remedy
+  - bitcoind-rest # displayed "Bitcoin REST"; the only entry without a supported Bitcoin and its rpc-local binding
   - electrs # displayed "Electrum Server"; binds before it connects to Bitcoin
   - sync # displayed "Sync Progress"; compares indexed and Bitcoin tips
 ```
