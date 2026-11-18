@@ -1,7 +1,7 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { existsSync } from 'fs'
 import { manifest } from 'bitcoin-core-startos/startos/manifest'
-import { rpcSubpath } from 'bitcoin-core-startos/startos/utils'
+import { rpcVolumeId } from 'bitcoin-core-startos/startos/utils'
 import { rm } from 'fs/promises'
 import { dependencies } from './dependencies'
 import { tomlFile } from './fileModels/electrs.toml'
@@ -72,8 +72,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       })
       .mountDependency<typeof manifest>({
         dependencyId: 'bitcoind',
-        volumeId: 'main',
-        subpath: rpcSubpath,
+        volumeId: rpcVolumeId,
+        subpath: null,
         mountpoint: bitcoindMountpoint,
         readonly: true,
       }),

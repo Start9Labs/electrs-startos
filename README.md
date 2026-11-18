@@ -49,12 +49,12 @@ One image, built here from upstream source.
 
 ## Volume and Data Layout
 
-One volume, plus a read-only view of Bitcoin's `rpc/` directory.
+One volume, plus a read-only view of Bitcoin's `public` volume.
 
-| Volume                | Mount Point     | Purpose                                  |
-| --------------------- | --------------- | ---------------------------------------- |
-| `main`                | `/data`         | The address index, the config, the store |
-| Bitcoin's `rpc/` (ro) | `/mnt/bitcoind` | The RPC cookie                           |
+| Volume                  | Mount Point     | Purpose                                  |
+| ----------------------- | --------------- | ---------------------------------------- |
+| `main`                  | `/data`         | The address index, the config, the store |
+| Bitcoin's `public` (ro) | `/mnt/bitcoind` | The RPC cookie                           |
 
 **The index is the bulk of the volume and is excluded from backups** — see [Backups and Restore](#backups-and-restore). Everything else on `main` is small.
 
@@ -85,9 +85,9 @@ Every other upstream option — the database directory, the block-download wait,
 
 One, and it is required.
 
-| Dependency | Required | Health checks required                               | Mounted                              | Why            |
-| ---------- | -------- | ---------------------------------------------------- | ------------------------------------ | -------------- |
-| Bitcoin    | Yes      | `bitcoind`, `sync-progress`, `background-validation` | `rpc/`, read-only at `/mnt/bitcoind` | The RPC cookie |
+| Dependency | Required | Health checks required                               | Mounted                                | Why            |
+| ---------- | -------- | ---------------------------------------------------- | -------------------------------------- | -------------- |
+| Bitcoin    | Yes      | `bitcoind`, `sync-progress`, `background-validation` | `public`, read-only at `/mnt/bitcoind` | The RPC cookie |
 
 **Requiring Bitcoin's own sync check is deliberate.** While Bitcoin is still doing its initial download, StartOS reports the dependency as unsatisfied. Dependency declarations do not block startup: electrs's own initial-download wait handles normal sync, and the `bitcoin-history` health check explicitly gates the daemon on Bitcoin's `background-validation` check.
 
@@ -97,7 +97,7 @@ One, and it is required.
 
 **Electrs uses Bitcoin's direct RPC/REST listener over the bridge-only `rpc-local` binding.** The exported `rpc` binding lands on a JSON-RPC-only proxy, so it cannot serve the REST endpoints Electrs requires.
 
-**Bitcoin must be Bitcoin Core 31.2:4 or later.** Upstream electrs 0.12 reads spent outputs and partial blocks over REST endpoints that first shipped in Bitcoin Core 30.0 and 31.0 ([bitcoin#32540](https://github.com/bitcoin/bitcoin/pull/32540), [bitcoin#33657](https://github.com/bitcoin/bitcoin/pull/33657)), so no 28.x–30.x line can serve it however it is configured; 31.1:17 is the first Bitcoin Core package revision that enables REST and publishes `rpc-local`; 31.2:1 is the first that reports `background-validation`; and 31.2:4 is the first that writes its cookie to the `rpc/` directory electrs mounts. The `>=31.2:4` floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
+**Bitcoin must be Bitcoin Core 31.2:4 or later.** Upstream electrs 0.12 reads spent outputs and partial blocks over REST endpoints that first shipped in Bitcoin Core 30.0 and 31.0 ([bitcoin#32540](https://github.com/bitcoin/bitcoin/pull/32540), [bitcoin#33657](https://github.com/bitcoin/bitcoin/pull/33657)), so no 28.x–30.x line can serve it however it is configured; 31.1:17 is the first Bitcoin Core package revision that enables REST and publishes `rpc-local`; 31.2:1 is the first that reports `background-validation`; and 31.2:4 is the first that publishes its cookie on the `public` volume electrs mounts. The `>=31.2:4` floor keeps incompatible Bitcoin releases from satisfying the package, and the `bitcoind-rest` health check names the remedies when one is installed anyway (see [Health Checks](#health-checks)).
 
 **The service also restarts when Bitcoin's cookie changes**, watched directly on the mounted file. An absent cookie means Bitcoin is down, and is deliberately not treated as a change.
 
@@ -208,7 +208,7 @@ architectures: # emulateMissing: false
 subcontainers:
   - electrs
 volumes:
-  main: /data # bitcoin's rpc/ directory is mounted read-only at /mnt/bitcoind
+  main: /data # bitcoin's public volume is mounted read-only at /mnt/bitcoind
 file_models:
   - electrs.toml
   - store.json # everSynced / syncNotified flags
