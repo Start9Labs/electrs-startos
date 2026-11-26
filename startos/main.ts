@@ -107,6 +107,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // Preserve the rollback index until Bitcoin's public volume is mounted.
   await rm(legacyIndex, { recursive: true, force: true })
 
+  // Latched: validated history cannot regress, and a dip would stop electrs mid-compaction.
+  let historyValidated = false
+
   /**
    * ======================== Daemons ========================
    */
@@ -115,17 +118,19 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ready: {
         display: i18n('Background Validation'),
         gracePeriod: 0,
-        fn: async () =>
-          (
+        fn: async () => {
+          historyValidated ||= (
             await dependencies.check(effects, ['bitcoind'])
           ).healthCheckSatisfied('bitcoind', 'background-validation')
+          return historyValidated
             ? { result: 'success' as const, message: null }
             : {
                 result: 'loading' as const,
                 message: i18n(
                   'Waiting for Bitcoin to finish validating historical blocks.',
                 ),
-              },
+              }
+        },
       },
       requires: [],
     })
